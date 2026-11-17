@@ -1,0 +1,5 @@
+﻿Bogføringsdato;Beløb;Afsender;Modtager;Navn;Beskrivelse;Saldo;Valuta
+2025-02-03;-1249,00;;;Google Ireland;GOOGLE *ADS1234567;8751,00;DKK
+2025-02-04;-89,95;;;PostNord;POSTNORD PORTO 448812;8661,05;DKK
+2025-02-05;15000,00;;;Stripe;STRIPE PAYOUT;23661,05;DKK
+2025-02-05;-0,75;;;Nordea;Gebyr overførsel;23660,30;DKK

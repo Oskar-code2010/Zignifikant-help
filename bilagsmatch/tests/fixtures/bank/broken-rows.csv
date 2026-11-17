@@ -1,0 +1,7 @@
+Dato;Tekst;Beløb;Saldo
+01-07-2025;Gyldig række;-100,00;900,00
+32-07-2025;Ugyldig dato;-50,00;850,00
+02-07-2025;Ugyldigt beløb;abc;850,00
+03-07-2025;;-10,00;840,00
+04-07-2025;Anden gyldig række;-1.000,50;-160,50
+I alt;;-1.160,50;

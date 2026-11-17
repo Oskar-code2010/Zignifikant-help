@@ -4,13 +4,13 @@
 
 export type DateFormat = "dd-mm-yyyy" | "dd.mm.yyyy" | "dd/mm/yyyy" | "yyyy-mm-dd" | "dd-mm-yy";
 
-export const DATE_FORMATS: readonly DateFormat[] = [
+export const DATE_FORMATS = [
   "dd-mm-yyyy",
   "dd.mm.yyyy",
   "dd/mm/yyyy",
   "yyyy-mm-dd",
   "dd-mm-yy",
-];
+] as const satisfies readonly DateFormat[];
 
 const PATTERNS: Record<DateFormat, RegExp> = {
   "dd-mm-yyyy": /^(\d{1,2})-(\d{1,2})-(\d{4})$/,
