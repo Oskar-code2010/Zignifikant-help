@@ -13,7 +13,8 @@ export class HttpError extends Error {
 }
 
 export const unauthorized = () => new HttpError(401, "Du skal være logget ind.");
-export const forbidden = (msg = "Du har ikke adgang til denne handling.") => new HttpError(403, msg);
+export const forbidden = (msg = "Du har ikke adgang til denne handling.") =>
+  new HttpError(403, msg);
 export const notFound = (what = "Ressourcen") => new HttpError(404, `${what} blev ikke fundet.`);
 export const badRequest = (msg: string, details?: unknown) => new HttpError(400, msg, details);
 export const conflict = (msg: string, details?: unknown) => new HttpError(409, msg, details);

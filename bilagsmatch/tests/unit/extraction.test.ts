@@ -1,8 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 import Anthropic from "@anthropic-ai/sdk";
-import { AnthropicExtractionProvider, toExtractionError } from "@/lib/extraction/anthropic-provider";
+import {
+  AnthropicExtractionProvider,
+  toExtractionError,
+} from "@/lib/extraction/anthropic-provider";
 import { MockExtractionProvider } from "@/lib/extraction/mock-provider";
-import { ExtractionError, ExtractionResultSchema, type ExtractionResult } from "@/lib/extraction/types";
+import {
+  ExtractionError,
+  ExtractionResultSchema,
+  type ExtractionResult,
+} from "@/lib/extraction/types";
 import { sanityCheck } from "@/lib/extraction/sanity";
 import { detectMimeType, isEncryptedPdf, cleanFilename } from "@/lib/files/validate";
 import { SAMPLE_DOCUMENTS, totals } from "@/lib/seed/sample-documents";
@@ -45,7 +52,11 @@ function fakeClient(...responses: (Anthropic.Message | Error)[]) {
   return { client: { messages: { create } } as unknown as Pick<Anthropic, "messages">, create };
 }
 
-const PDF = { bytes: Buffer.from("%PDF-1.7\n1 0 obj\n<<>>\nendobj\n"), mimeType: "application/pdf", filename: "gls.pdf" };
+const PDF = {
+  bytes: Buffer.from("%PDF-1.7\n1 0 obj\n<<>>\nendobj\n"),
+  mimeType: "application/pdf",
+  filename: "gls.pdf",
+};
 const opts = { model: "test-model", sleep: async () => {}, baseDelayMs: 1 };
 
 const rateLimit = () => new Anthropic.RateLimitError(429, undefined, "rate limited", new Headers());
@@ -67,14 +78,26 @@ describe("AnthropicExtractionProvider", () => {
   it("sends images as image blocks", async () => {
     const { client, create } = fakeClient(message(JSON.stringify(GOOD)));
     const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0]);
-    await new AnthropicExtractionProvider({ client, ...opts }).extract({ bytes: png, mimeType: "image/png", filename: "x.png" });
-    expect(create.mock.calls[0]![0].messages[0].content[0]).toMatchObject({ type: "image", source: { media_type: "image/png" } });
+    await new AnthropicExtractionProvider({ client, ...opts }).extract({
+      bytes: png,
+      mimeType: "image/png",
+      filename: "x.png",
+    });
+    expect(create.mock.calls[0]![0].messages[0].content[0]).toMatchObject({
+      type: "image",
+      source: { media_type: "image/png" },
+    });
   });
 
   it("retries once with the validation error, then succeeds", async () => {
     const bad = { ...GOOD, totalAmountOre: 1875.5, invoiceDate: "12-09-2026" };
-    const { client, create } = fakeClient(message(JSON.stringify(bad)), message(JSON.stringify(GOOD)));
-    await expect(new AnthropicExtractionProvider({ client, ...opts }).extract(PDF)).resolves.toEqual(GOOD);
+    const { client, create } = fakeClient(
+      message(JSON.stringify(bad)),
+      message(JSON.stringify(GOOD)),
+    );
+    await expect(
+      new AnthropicExtractionProvider({ client, ...opts }).extract(PDF),
+    ).resolves.toEqual(GOOD);
     expect(create).toHaveBeenCalledTimes(2);
     const retryText = create.mock.calls[1]![0].messages[0].content.at(-1).text as string;
     expect(retryText).toContain("totalAmountOre");
@@ -83,13 +106,19 @@ describe("AnthropicExtractionProvider", () => {
 
   it("fails with a readable Danish error after two invalid responses", async () => {
     const { client, create } = fakeClient(message("not json"), message(JSON.stringify({ foo: 1 })));
-    await expect(new AnthropicExtractionProvider({ client, ...opts }).extract(PDF)).rejects.toThrow(/ugyldige data to gange/);
+    await expect(new AnthropicExtractionProvider({ client, ...opts }).extract(PDF)).rejects.toThrow(
+      /ugyldige data to gange/,
+    );
     expect(create).toHaveBeenCalledTimes(2);
   });
 
   it("backs off and retries on rate limits and server errors", async () => {
     const sleep = vi.fn(async (_ms: number) => {});
-    const { client, create } = fakeClient(rateLimit(), serverError(), message(JSON.stringify(GOOD)));
+    const { client, create } = fakeClient(
+      rateLimit(),
+      serverError(),
+      message(JSON.stringify(GOOD)),
+    );
     const p = new AnthropicExtractionProvider({ client, model: "m", sleep, baseDelayMs: 100 });
     await expect(p.extract(PDF)).resolves.toEqual(GOOD);
     expect(create).toHaveBeenCalledTimes(3);
@@ -98,14 +127,18 @@ describe("AnthropicExtractionProvider", () => {
 
   it("gives up after 3 retries", async () => {
     const { client, create } = fakeClient(rateLimit(), rateLimit(), rateLimit(), rateLimit());
-    await expect(new AnthropicExtractionProvider({ client, ...opts }).extract(PDF)).rejects.toThrow(/overbelastet/);
+    await expect(new AnthropicExtractionProvider({ client, ...opts }).extract(PDF)).rejects.toThrow(
+      /overbelastet/,
+    );
     expect(create).toHaveBeenCalledTimes(4);
   });
 
   it("maps timeouts and bad requests to Danish errors", async () => {
     const timeout = new Anthropic.APIConnectionTimeoutError({ message: "timeout" });
     const { client } = fakeClient(timeout, timeout, timeout, timeout);
-    await expect(new AnthropicExtractionProvider({ client, ...opts }).extract(PDF)).rejects.toThrow(/svarede ikke i tide/);
+    await expect(new AnthropicExtractionProvider({ client, ...opts }).extract(PDF)).rejects.toThrow(
+      /svarede ikke i tide/,
+    );
     const bad = new Anthropic.BadRequestError(400, undefined, "bad pdf", new Headers());
     expect(toExtractionError(bad).message).toMatch(/beskadiget/);
     expect(toExtractionError(new Error("x"))).toBeInstanceOf(ExtractionError);
@@ -114,26 +147,35 @@ describe("AnthropicExtractionProvider", () => {
   it("does not retry non-retryable errors", async () => {
     const auth = new Anthropic.AuthenticationError(401, undefined, "nope", new Headers());
     const { client, create } = fakeClient(auth);
-    await expect(new AnthropicExtractionProvider({ client, ...opts }).extract(PDF)).rejects.toThrow(/ANTHROPIC_API_KEY/);
+    await expect(new AnthropicExtractionProvider({ client, ...opts }).extract(PDF)).rejects.toThrow(
+      /ANTHROPIC_API_KEY/,
+    );
     expect(create).toHaveBeenCalledTimes(1);
   });
 
   it("handles refusals", async () => {
     const { client } = fakeClient(message("", "refusal"));
-    await expect(new AnthropicExtractionProvider({ client, ...opts }).extract(PDF)).rejects.toThrow(/afviste/);
+    await expect(new AnthropicExtractionProvider({ client, ...opts }).extract(PDF)).rejects.toThrow(
+      /afviste/,
+    );
   });
 
   it("rejects password-protected PDFs without calling the API", async () => {
     const { client, create } = fakeClient();
     const enc = { ...PDF, bytes: Buffer.from("%PDF-1.4\ntrailer\n<< /Encrypt 5 0 R >>\n") };
-    await expect(new AnthropicExtractionProvider({ client, ...opts }).extract(enc)).rejects.toThrow(/adgangskode/);
+    await expect(new AnthropicExtractionProvider({ client, ...opts }).extract(enc)).rejects.toThrow(
+      /adgangskode/,
+    );
     expect(create).not.toHaveBeenCalled();
   });
 
   it("rejects unsupported mime types", async () => {
     const { client } = fakeClient();
     await expect(
-      new AnthropicExtractionProvider({ client, ...opts }).extract({ ...PDF, mimeType: "text/plain" }),
+      new AnthropicExtractionProvider({ client, ...opts }).extract({
+        ...PDF,
+        mimeType: "text/plain",
+      }),
     ).rejects.toThrow(/understøttes ikke/);
   });
 });
@@ -142,7 +184,11 @@ describe("MockExtractionProvider", () => {
   it("returns correct data for every sample document", async () => {
     const p = new MockExtractionProvider();
     for (const d of SAMPLE_DOCUMENTS) {
-      const r = await p.extract({ bytes: Buffer.from("x"), mimeType: "application/pdf", filename: d.filename });
+      const r = await p.extract({
+        bytes: Buffer.from("x"),
+        mimeType: "application/pdf",
+        filename: d.filename,
+      });
       expect(ExtractionResultSchema.parse(r)).toEqual(r);
       expect(r.totalAmountOre).toBe(totals(d).totalOre);
       expect(r.supplierName).toBe(d.supplierName);
@@ -153,11 +199,20 @@ describe("MockExtractionProvider", () => {
 
   it("is deterministic and derives plausible data for unknown files", async () => {
     const p = new MockExtractionProvider();
-    const input = { bytes: Buffer.from("abc"), mimeType: "application/pdf", filename: "faktura-telia_2026-10-03_349,00.pdf" };
+    const input = {
+      bytes: Buffer.from("abc"),
+      mimeType: "application/pdf",
+      filename: "faktura-telia_2026-10-03_349,00.pdf",
+    };
     const a = await p.extract(input);
     const b = await p.extract(input);
     expect(a).toEqual(b);
-    expect(a).toMatchObject({ supplierName: "Telia", invoiceDate: "2026-10-03", totalAmountOre: 34900, confidence: 35 });
+    expect(a).toMatchObject({
+      supplierName: "Telia",
+      invoiceDate: "2026-10-03",
+      totalAmountOre: 34900,
+      confidence: 35,
+    });
     const c = await p.extract({ ...input, filename: "scan.pdf" });
     expect(c.supplierName).toBeNull();
     expect(c.totalAmountOre).toBeGreaterThan(0);
@@ -176,7 +231,9 @@ describe("sanityCheck", () => {
     expect(sanityCheck({ ...GOOD, netAmountOre: 150099 })).toEqual([]);
   });
   it("flags unusual VAT rates but allows zero VAT", () => {
-    expect(sanityCheck({ ...GOOD, vatAmountOre: 10000, netAmountOre: 177500 }).join()).toMatch(/Momsen er 5,3 %/);
+    expect(sanityCheck({ ...GOOD, vatAmountOre: 10000, netAmountOre: 177500 }).join()).toMatch(
+      /Momsen er 5,3 %/,
+    );
     expect(sanityCheck({ ...GOOD, vatAmountOre: 0, netAmountOre: 187500 })).toEqual([]);
   });
   it("flags missing total/date and due date before invoice date", () => {
@@ -186,14 +243,18 @@ describe("sanityCheck", () => {
     expect(sanityCheck({ ...GOOD, dueDate: "2026-09-01" }).join()).toMatch(/før fakturadatoen/);
   });
   it("works for credit notes (negative amounts)", () => {
-    expect(sanityCheck({ ...GOOD, totalAmountOre: -50000, vatAmountOre: -10000, netAmountOre: -40000 })).toEqual([]);
+    expect(
+      sanityCheck({ ...GOOD, totalAmountOre: -50000, vatAmountOre: -10000, netAmountOre: -40000 }),
+    ).toEqual([]);
   });
 });
 
 describe("file validation", () => {
   it("detects types by magic bytes", () => {
     expect(detectMimeType(Buffer.from("%PDF-1.7"))).toBe("application/pdf");
-    expect(detectMimeType(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))).toBe("image/png");
+    expect(detectMimeType(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))).toBe(
+      "image/png",
+    );
     expect(detectMimeType(Buffer.from([0xff, 0xd8, 0xff, 0xe0]))).toBe("image/jpeg");
     expect(detectMimeType(Buffer.from("<html>"))).toBeNull();
     expect(detectMimeType(Buffer.from("PK\x03\x04"))).toBeNull();

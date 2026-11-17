@@ -11,7 +11,14 @@ export const EXTENSION_FOR: Record<AllowedMime, "pdf" | "png" | "jpg"> = {
 
 export function detectMimeType(bytes: Uint8Array): AllowedMime | null {
   const b = bytes;
-  if (b.length >= 5 && b[0] === 0x25 && b[1] === 0x50 && b[2] === 0x44 && b[3] === 0x46 && b[4] === 0x2d) {
+  if (
+    b.length >= 5 &&
+    b[0] === 0x25 &&
+    b[1] === 0x50 &&
+    b[2] === 0x44 &&
+    b[3] === 0x46 &&
+    b[4] === 0x2d
+  ) {
     return "application/pdf"; // %PDF-
   }
   if (

@@ -68,12 +68,21 @@ export async function completeJob(id: string): Promise<void> {
 }
 
 /** Mark failed. Retryable failures go back to PENDING with backoff until MAX_ATTEMPTS. */
-export async function failJob(job: ClaimedJob, message: string, retryable: boolean): Promise<"retry" | "failed"> {
+export async function failJob(
+  job: ClaimedJob,
+  message: string,
+  retryable: boolean,
+): Promise<"retry" | "failed"> {
   if (retryable && job.attempts < MAX_ATTEMPTS) {
     const delay = 30_000 * 2 ** (job.attempts - 1);
     await prisma.job.update({
       where: { id: job.id },
-      data: { status: "PENDING", lockedAt: null, lastError: message, runAfter: new Date(Date.now() + delay) },
+      data: {
+        status: "PENDING",
+        lockedAt: null,
+        lastError: message,
+        runAfter: new Date(Date.now() + delay),
+      },
     });
     return "retry";
   }

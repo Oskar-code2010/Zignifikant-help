@@ -6,7 +6,10 @@ type P = { clientId: string };
 
 export const GET = authed<P>(async (ctx, req, { clientId }) => {
   const sp = new URL(req.url).searchParams;
-  const res = await exportPreview(ctx, clientId, { from: sp.get("from") ?? "", to: sp.get("to") ?? "" });
+  const res = await exportPreview(ctx, clientId, {
+    from: sp.get("from") ?? "",
+    to: sp.get("to") ?? "",
+  });
   return NextResponse.json(res);
 });
 

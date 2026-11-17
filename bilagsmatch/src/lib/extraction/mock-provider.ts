@@ -40,7 +40,17 @@ export class MockExtractionProvider implements ExtractionProvider {
   }
 }
 
-const STOP_WORDS = new Set(["faktura", "kvittering", "invoice", "receipt", "bilag", "rechnung", "pdf", "scan", "img"]);
+const STOP_WORDS = new Set([
+  "faktura",
+  "kvittering",
+  "invoice",
+  "receipt",
+  "bilag",
+  "rechnung",
+  "pdf",
+  "scan",
+  "img",
+]);
 
 export function guessFromFilename(input: ExtractionInput): ExtractionResult {
   const hash = createHash("sha256").update(input.bytes).digest();
@@ -59,7 +69,8 @@ export function guessFromFilename(input: ExtractionInput): ExtractionResult {
     .replace(amountMatch?.[0] ?? "", " ")
     .split(/[^a-zA-ZæøåÆØÅ]+/)
     .filter((w) => w.length > 1 && !STOP_WORDS.has(w.toLowerCase()));
-  const supplier = words.length > 0 ? words.map((w) => w[0]!.toUpperCase() + w.slice(1)).join(" ") : null;
+  const supplier =
+    words.length > 0 ? words.map((w) => w[0]!.toUpperCase() + w.slice(1)).join(" ") : null;
 
   const vat = Math.round((total * 20) / 100);
   return {

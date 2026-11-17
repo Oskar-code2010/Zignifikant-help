@@ -18,7 +18,11 @@ type Item = {
   message?: string;
 };
 
-function uploadOne(url: string, file: File, onProgress: (p: number) => void): Promise<{ status: number; body: unknown }> {
+function uploadOne(
+  url: string,
+  file: File,
+  onProgress: (p: number) => void,
+): Promise<{ status: number; body: unknown }> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", url);
@@ -42,15 +46,34 @@ function uploadOne(url: string, file: File, onProgress: (p: number) => void): Pr
 }
 
 function isDuplicate(body: unknown): body is { duplicate: true; message: string } {
-  return typeof body === "object" && body !== null && "duplicate" in body && body.duplicate === true && "message" in body && typeof body.message === "string";
+  return (
+    typeof body === "object" &&
+    body !== null &&
+    "duplicate" in body &&
+    body.duplicate === true &&
+    "message" in body &&
+    typeof body.message === "string"
+  );
 }
 
 function errorText(body: unknown, status: number): string {
-  if (typeof body === "object" && body !== null && "error" in body && typeof body.error === "string") return body.error;
+  if (
+    typeof body === "object" &&
+    body !== null &&
+    "error" in body &&
+    typeof body.error === "string"
+  )
+    return body.error;
   return `Upload fejlede (${status}).`;
 }
 
-export function DocumentUploader({ clientId, onUploaded }: { clientId: string; onUploaded?: () => void }) {
+export function DocumentUploader({
+  clientId,
+  onUploaded,
+}: {
+  clientId: string;
+  onUploaded?: () => void;
+}) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [items, setItems] = useState<Item[]>([]);
@@ -69,7 +92,8 @@ export function DocumentUploader({ clientId, onUploaded }: { clientId: string; o
           name: file.name,
           progress: 0,
           state: file.size > MAX_BYTES ? "error" : "queued",
-          message: file.size > MAX_BYTES ? "Filen er større end 20 MB og kan ikke uploades." : undefined,
+          message:
+            file.size > MAX_BYTES ? "Filen er større end 20 MB og kan ikke uploades." : undefined,
         },
       }));
       setItems((prev) => [...batch.map((b) => b.item), ...prev].slice(0, 100));
@@ -80,7 +104,9 @@ export function DocumentUploader({ clientId, onUploaded }: { clientId: string; o
           const { item, file } = next;
           patch(item.key, { state: "uploading" });
           try {
-            const res = await uploadOne(`/api/clients/${clientId}/documents`, file, (p) => patch(item.key, { progress: p }));
+            const res = await uploadOne(`/api/clients/${clientId}/documents`, file, (p) =>
+              patch(item.key, { progress: p }),
+            );
             if (res.status === 201) {
               ok++;
               patch(item.key, { state: "done", progress: 100 });
@@ -90,7 +116,10 @@ export function DocumentUploader({ clientId, onUploaded }: { clientId: string; o
               patch(item.key, { state: "error", message: errorText(res.body, res.status) });
             }
           } catch (e) {
-            patch(item.key, { state: "error", message: e instanceof Error ? e.message : "Upload fejlede." });
+            patch(item.key, {
+              state: "error",
+              message: e instanceof Error ? e.message : "Upload fejlede.",
+            });
           }
         }
       };
@@ -134,7 +163,9 @@ export function DocumentUploader({ clientId, onUploaded }: { clientId: string; o
       >
         <UploadCloud className="h-8 w-8 text-muted-foreground" aria-hidden />
         <p className="font-medium">Træk bilag hertil, eller klik for at vælge</p>
-        <p className="text-sm text-muted-foreground">PDF, JPG eller PNG · maks. 20 MB pr. fil · gerne mange ad gangen</p>
+        <p className="text-sm text-muted-foreground">
+          PDF, JPG eller PNG · maks. 20 MB pr. fil · gerne mange ad gangen
+        </p>
         <input
           ref={inputRef}
           type="file"
@@ -151,7 +182,10 @@ export function DocumentUploader({ clientId, onUploaded }: { clientId: string; o
       {items.length > 0 ? (
         <ul className="flex flex-col gap-1.5" aria-label="Uploads" aria-live="polite">
           {items.map((it) => (
-            <li key={it.key} className="flex items-center gap-3 rounded-md border border-border bg-card px-3 py-2 text-sm">
+            <li
+              key={it.key}
+              className="flex items-center gap-3 rounded-md border border-border bg-card px-3 py-2 text-sm"
+            >
               {it.state === "done" ? (
                 <CheckCircle2 className="h-4 w-4 shrink-0 text-success" aria-hidden />
               ) : it.state === "error" || it.state === "duplicate" ? (
@@ -161,14 +195,28 @@ export function DocumentUploader({ clientId, onUploaded }: { clientId: string; o
               )}
               <span className="min-w-0 flex-1 truncate">{it.name}</span>
               {it.state === "uploading" || it.state === "queued" ? (
-                <div className="h-1.5 w-32 overflow-hidden rounded bg-muted" role="progressbar" aria-valuenow={it.progress} aria-valuemin={0} aria-valuemax={100} aria-label={`Upload af ${it.name}`}>
-                  <div className="h-full bg-primary transition-all" style={{ width: `${it.progress}%` }} />
+                <div
+                  className="h-1.5 w-32 overflow-hidden rounded bg-muted"
+                  role="progressbar"
+                  aria-valuenow={it.progress}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={`Upload af ${it.name}`}
+                >
+                  <div
+                    className="h-full bg-primary transition-all"
+                    style={{ width: `${it.progress}%` }}
+                  />
                 </div>
               ) : null}
               <span
                 className={cn(
                   "shrink-0 text-xs",
-                  it.state === "error" ? "text-danger" : it.state === "duplicate" ? "text-warning" : "text-muted-foreground",
+                  it.state === "error"
+                    ? "text-danger"
+                    : it.state === "duplicate"
+                      ? "text-warning"
+                      : "text-muted-foreground",
                 )}
               >
                 {it.state === "done"

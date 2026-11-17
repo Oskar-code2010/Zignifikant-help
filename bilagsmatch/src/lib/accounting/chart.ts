@@ -45,7 +45,8 @@ export const STANDARD_VAT_CODES: readonly VatCodeSeed[] = [
   {
     code: "NONE",
     name: "Ingen moms",
-    description: "Momsfri eller uden for momsområdet, fx bankgebyrer, betalingsgebyrer, forsikring og løn.",
+    description:
+      "Momsfri eller uden for momsområdet, fx bankgebyrer, betalingsgebyrer, forsikring og løn.",
     ratePercent: 0,
   },
 ];
@@ -65,9 +66,19 @@ export const STANDARD_CHART: readonly AccountSeed[] = [
   { number: "1310", name: "Varekøb, Danmark", type: "EXPENSE", defaultVatCode: "I25" },
   { number: "1320", name: "Varekøb, EU", type: "EXPENSE", defaultVatCode: "IEU" },
   { number: "1350", name: "Fragt og forsendelse", type: "EXPENSE", defaultVatCode: "I25" },
-  { number: "1360", name: "Emballage og forsendelsesmaterialer", type: "EXPENSE", defaultVatCode: "I25" },
+  {
+    number: "1360",
+    name: "Emballage og forsendelsesmaterialer",
+    type: "EXPENSE",
+    defaultVatCode: "I25",
+  },
   { number: "2210", name: "Annoncering og markedsføring", type: "EXPENSE", defaultVatCode: "I25" },
-  { number: "2220", name: "Online annoncering (Google, Meta m.fl.)", type: "EXPENSE", defaultVatCode: "IEUY" },
+  {
+    number: "2220",
+    name: "Online annoncering (Google, Meta m.fl.)",
+    type: "EXPENSE",
+    defaultVatCode: "IEUY",
+  },
   { number: "2750", name: "Husleje", type: "EXPENSE", defaultVatCode: "NONE" },
   { number: "2800", name: "Kontorartikler", type: "EXPENSE", defaultVatCode: "I25" },
   { number: "2810", name: "IT og software, Danmark", type: "EXPENSE", defaultVatCode: "I25" },
@@ -76,7 +87,12 @@ export const STANDARD_CHART: readonly AccountSeed[] = [
   { number: "2850", name: "Revisor og bogføring", type: "EXPENSE", defaultVatCode: "I25" },
   { number: "2860", name: "Forsikringer", type: "EXPENSE", defaultVatCode: "NONE" },
   { number: "3610", name: "Webshop-platform og apps", type: "EXPENSE", defaultVatCode: "IEUY" },
-  { number: "3620", name: "Betalingsgebyrer (indløsning)", type: "EXPENSE", defaultVatCode: "NONE" },
+  {
+    number: "3620",
+    name: "Betalingsgebyrer (indløsning)",
+    type: "EXPENSE",
+    defaultVatCode: "NONE",
+  },
   { number: "3630", name: "Bankgebyrer", type: "EXPENSE", defaultVatCode: "NONE" },
   { number: "5810", name: "Bankkonto", type: "ASSET", defaultVatCode: null },
   { number: "5820", name: "Mellemregning, overførsler", type: "ASSET", defaultVatCode: null },

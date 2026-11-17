@@ -100,7 +100,9 @@ export class AnthropicExtractionProvider implements ExtractionProvider {
       const message = await this.callWithBackoff(content);
 
       if (message.stop_reason === "refusal") {
-        throw new ExtractionError("AI-modellen afviste at behandle dokumentet. Udfyld felterne manuelt.");
+        throw new ExtractionError(
+          "AI-modellen afviste at behandle dokumentet. Udfyld felterne manuelt.",
+        );
       }
       if (message.stop_reason === "max_tokens") {
         lastValidationError = "Svaret blev afbrudt (for langt). Returnér kun de vigtigste linjer.";
@@ -126,15 +128,22 @@ export class AnthropicExtractionProvider implements ExtractionProvider {
     );
   }
 
-  private async callWithBackoff(content: Anthropic.ContentBlockParam[]): Promise<Anthropic.Message> {
+  private async callWithBackoff(
+    content: Anthropic.ContentBlockParam[],
+  ): Promise<Anthropic.Message> {
     for (let attempt = 0; ; attempt++) {
       try {
         return await this.client.messages.create({
           model: this.model,
           max_tokens: 16000,
-          system: [{ type: "text", text: EXTRACTION_SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
+          system: [
+            { type: "text", text: EXTRACTION_SYSTEM_PROMPT, cache_control: { type: "ephemeral" } },
+          ],
           messages: [{ role: "user", content }],
-          output_config: { effort: "medium", format: { type: "json_schema", schema: EXTRACTION_JSON_SCHEMA } },
+          output_config: {
+            effort: "medium",
+            format: { type: "json_schema", schema: EXTRACTION_JSON_SCHEMA },
+          },
         });
       } catch (err) {
         const retryable =
@@ -158,12 +167,21 @@ export function toExtractionError(err: unknown): ExtractionError {
     return new ExtractionError("AI-tjenesten svarede ikke i tide. Prøv igen om lidt.", true);
   }
   if (err instanceof Anthropic.APIConnectionError) {
-    return new ExtractionError("Kunne ikke forbinde til AI-tjenesten. Tjek netværket og prøv igen.", true);
+    return new ExtractionError(
+      "Kunne ikke forbinde til AI-tjenesten. Tjek netværket og prøv igen.",
+      true,
+    );
   }
   if (err instanceof Anthropic.RateLimitError) {
-    return new ExtractionError("AI-tjenesten er overbelastet (for mange forespørgsler). Prøv igen om et par minutter.", true);
+    return new ExtractionError(
+      "AI-tjenesten er overbelastet (for mange forespørgsler). Prøv igen om et par minutter.",
+      true,
+    );
   }
-  if (err instanceof Anthropic.AuthenticationError || err instanceof Anthropic.PermissionDeniedError) {
+  if (
+    err instanceof Anthropic.AuthenticationError ||
+    err instanceof Anthropic.PermissionDeniedError
+  ) {
     return new ExtractionError("AI-nøglen (ANTHROPIC_API_KEY) er ugyldig eller mangler adgang.");
   }
   if (err instanceof Anthropic.NotFoundError) {

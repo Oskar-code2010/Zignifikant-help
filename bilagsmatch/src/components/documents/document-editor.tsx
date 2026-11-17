@@ -91,7 +91,11 @@ export function DocumentEditor({ doc }: { doc: EditableDoc }) {
     }
   }
 
-  const field = (name: keyof EditableDoc, label: string, props: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
+  const field = (
+    name: keyof EditableDoc,
+    label: string,
+    props: React.InputHTMLAttributes<HTMLInputElement> = {},
+  ) => (
     <div className="flex flex-col gap-1">
       <Label htmlFor={`doc-${name}`}>{label}</Label>
       <Input
@@ -115,7 +119,10 @@ export function DocumentEditor({ doc }: { doc: EditableDoc }) {
     <form onSubmit={onSave} className="flex flex-col gap-3" noValidate>
       {field("supplierName", "Leverandør", { defaultValue: doc.supplierName ?? "" })}
       <div className="grid grid-cols-2 gap-3">
-        {field("supplierCvr", "Leverandør-CVR", { defaultValue: doc.supplierCvr ?? "", inputMode: "numeric" })}
+        {field("supplierCvr", "Leverandør-CVR", {
+          defaultValue: doc.supplierCvr ?? "",
+          inputMode: "numeric",
+        })}
         {field("invoiceNumber", "Fakturanr.", { defaultValue: doc.invoiceNumber ?? "" })}
         {field("invoiceDate", "Fakturadato", { type: "date", defaultValue: doc.invoiceDate })}
         {field("dueDate", "Forfaldsdato", { type: "date", defaultValue: doc.dueDate })}
@@ -138,10 +145,20 @@ export function DocumentEditor({ doc }: { doc: EditableDoc }) {
       </div>
       <div className="flex flex-col gap-1">
         <Label htmlFor="doc-description">Beskrivelse</Label>
-        <Textarea id="doc-description" name="description" defaultValue={doc.description ?? ""} rows={3} />
+        <Textarea
+          id="doc-description"
+          name="description"
+          defaultValue={doc.description ?? ""}
+          rows={3}
+        />
       </div>
       <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" name="isCreditNote" defaultChecked={doc.isCreditNote} className="h-4 w-4" />
+        <input
+          type="checkbox"
+          name="isCreditNote"
+          defaultChecked={doc.isCreditNote}
+          className="h-4 w-4"
+        />
         Kreditnota (beløb er en kreditering)
       </label>
       <div className="flex flex-wrap gap-2 pt-2">

@@ -75,7 +75,13 @@ export const SAMPLE_DOCUMENTS: readonly SampleDocument[] = [
     invoiceDate: "2026-09-30",
     dueDate: "2026-09-30",
     currency: "DKK",
-    lines: [{ description: "Google Ads – klik september 2026, konto 412-118-9921", quantity: 1, unitPriceOre: 425000 }],
+    lines: [
+      {
+        description: "Google Ads – klik september 2026, konto 412-118-9921",
+        quantity: 1,
+        unitPriceOre: 425000,
+      },
+    ],
     vatRate: 0,
     note: "Omvendt betalingspligt – køber afregner dansk moms.",
   },
@@ -90,7 +96,13 @@ export const SAMPLE_DOCUMENTS: readonly SampleDocument[] = [
     invoiceDate: "2026-09-15",
     dueDate: "2026-09-15",
     currency: "DKK",
-    lines: [{ description: "Facebook- og Instagram-annoncer, 1.–15. september", quantity: 1, unitPriceOre: 218050 }],
+    lines: [
+      {
+        description: "Facebook- og Instagram-annoncer, 1.–15. september",
+        quantity: 1,
+        unitPriceOre: 218050,
+      },
+    ],
     vatRate: 0,
     note: "Omvendt betalingspligt.",
   },
@@ -120,7 +132,9 @@ export const SAMPLE_DOCUMENTS: readonly SampleDocument[] = [
     invoiceDate: "2026-09-30",
     dueDate: "2026-10-14",
     currency: "DKK",
-    lines: [{ description: "MyPack Collect, september (78 pakker)", quantity: 78, unitPriceOre: 2400 }],
+    lines: [
+      { description: "MyPack Collect, september (78 pakker)", quantity: 78, unitPriceOre: 2400 },
+    ],
     vatRate: 25,
   },
   {
@@ -178,7 +192,13 @@ export const SAMPLE_DOCUMENTS: readonly SampleDocument[] = [
     invoiceDate: "2026-10-02",
     dueDate: null,
     currency: "DKK",
-    lines: [{ description: "Kreditering: 40 beskadigede papkasser (faktura 2026-118)", quantity: 40, unitPriceOre: 1000 }],
+    lines: [
+      {
+        description: "Kreditering: 40 beskadigede papkasser (faktura 2026-118)",
+        quantity: 40,
+        unitPriceOre: 1000,
+      },
+    ],
     vatRate: 25,
     isCreditNote: true,
   },
@@ -193,7 +213,13 @@ export const SAMPLE_DOCUMENTS: readonly SampleDocument[] = [
     invoiceDate: "2026-09-05",
     dueDate: "2026-09-05",
     currency: "DKK",
-    lines: [{ description: "Microsoft 365 Business Standard, 4 brugere", quantity: 4, unitPriceOre: 9850 }],
+    lines: [
+      {
+        description: "Microsoft 365 Business Standard, 4 brugere",
+        quantity: 4,
+        unitPriceOre: 9850,
+      },
+    ],
     vatRate: 0,
     note: "Omvendt betalingspligt.",
   },
@@ -239,7 +265,9 @@ export const SAMPLE_DOCUMENTS: readonly SampleDocument[] = [
     invoiceDate: "2026-09-19",
     dueDate: "2026-10-03",
     currency: "DKK",
-    lines: [{ description: "Pakkeshop-levering, 40 forsendelser", quantity: 40, unitPriceOre: 1960 }],
+    lines: [
+      { description: "Pakkeshop-levering, 40 forsendelser", quantity: 40, unitPriceOre: 1960 },
+    ],
     vatRate: 25,
   },
   {
@@ -304,7 +332,9 @@ export const SAMPLE_DOCUMENTS: readonly SampleDocument[] = [
     invoiceDate: "2026-09-30",
     dueDate: "2026-10-15",
     currency: "DKK",
-    lines: [{ description: "Pakker til erhverv, september (36 stk.)", quantity: 36, unitPriceOre: 3200 }],
+    lines: [
+      { description: "Pakker til erhverv, september (36 stk.)", quantity: 36, unitPriceOre: 3200 },
+    ],
     vatRate: 25,
   },
   {
@@ -318,7 +348,9 @@ export const SAMPLE_DOCUMENTS: readonly SampleDocument[] = [
     invoiceDate: "2026-10-01",
     dueDate: "2026-10-01",
     currency: "DKK",
-    lines: [{ description: "Card processing fees, September 2026", quantity: 1, unitPriceOre: 48765 }],
+    lines: [
+      { description: "Card processing fees, September 2026", quantity: 1, unitPriceOre: 48765 },
+    ],
     vatRate: 0,
     note: "Momsfri finansiel ydelse.",
   },
@@ -348,7 +380,11 @@ export const SAMPLE_DOCUMENTS: readonly SampleDocument[] = [
     dueDate: "2026-09-23",
     currency: "DKK",
     lines: [
-      { description: "Kaffeposer m. ventil, 250 g, kraft, 1.000 stk.", quantity: 1000, unitPriceOre: 290 },
+      {
+        description: "Kaffeposer m. ventil, 250 g, kraft, 1.000 stk.",
+        quantity: 1000,
+        unitPriceOre: 290,
+      },
       { description: "Tryk af etiketter, 1.000 stk.", quantity: 1000, unitPriceOre: 85 },
     ],
     vatRate: 25,
@@ -392,7 +428,13 @@ export const SAMPLE_DOCUMENTS: readonly SampleDocument[] = [
     invoiceDate: "2026-10-02",
     dueDate: "2026-10-02",
     currency: "DKK",
-    lines: [{ description: "MobilePay MyShop transaktionsgebyrer, september", quantity: 1, unitPriceOre: 23450 }],
+    lines: [
+      {
+        description: "MobilePay MyShop transaktionsgebyrer, september",
+        quantity: 1,
+        unitPriceOre: 23450,
+      },
+    ],
     vatRate: 0,
     note: "Betalingsgebyrer er momsfri.",
   },

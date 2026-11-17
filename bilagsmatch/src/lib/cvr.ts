@@ -2,9 +2,7 @@
 
 /** Strip spaces, dashes and an optional "DK"/"CVR" prefix. Returns digits only. */
 export function normalizeCvr(input: string): string {
-  return input
-    .replace(/^\s*(?:cvr(?:-?nr\.?)?:?|dk)\s*/i, "")
-    .replace(/[\s-]/g, "");
+  return input.replace(/^\s*(?:cvr(?:-?nr\.?)?:?|dk)\s*/i, "").replace(/[\s-]/g, "");
 }
 
 export function isValidCvr(input: string): boolean {

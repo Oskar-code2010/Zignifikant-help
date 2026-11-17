@@ -17,7 +17,10 @@ const RuleBase = z.object({
   vatCode: z.string().trim().min(1).max(10),
 });
 
-function normalizePattern(matchType: z.infer<typeof RuleBase>["matchType"], pattern: string): string {
+function normalizePattern(
+  matchType: z.infer<typeof RuleBase>["matchType"],
+  pattern: string,
+): string {
   if (matchType === "SUPPLIER_CVR") {
     if (!isValidCvr(pattern)) throw badRequest("CVR-nummer skal være 8 cifre.");
     return normalizeCvr(pattern);
@@ -40,14 +43,18 @@ async function assertAccountVat(ctx: SessionContext, accountNumber: string, vatC
 }
 
 export async function listRules(ctx: SessionContext) {
-  return ctx.db.categorizationRule.findMany({ orderBy: [{ timesApplied: "desc" }, { pattern: "asc" }] });
+  return ctx.db.categorizationRule.findMany({
+    orderBy: [{ timesApplied: "desc" }, { pattern: "asc" }],
+  });
 }
 
 export async function createRule(ctx: SessionContext, raw: unknown) {
   const input = RuleBase.parse(raw);
   await assertAccountVat(ctx, input.accountNumber, input.vatCode);
   const pattern = normalizePattern(input.matchType, input.pattern);
-  const exists = await ctx.db.categorizationRule.findFirst({ where: { matchType: input.matchType, pattern } });
+  const exists = await ctx.db.categorizationRule.findFirst({
+    where: { matchType: input.matchType, pattern },
+  });
   if (exists) throw conflict("Der findes allerede en regel med samme type og mønster.");
   const rule = await ctx.db.categorizationRule.create({
     data: { organizationId: ctx.organizationId, ...input, pattern, createdFrom: "MANUAL" },
@@ -65,7 +72,8 @@ export async function updateRule(ctx: SessionContext, id: string, raw: unknown) 
   const vatCode = input.vatCode ?? rule.vatCode;
   await assertAccountVat(ctx, accountNumber, vatCode);
   const matchType = input.matchType ?? rule.matchType;
-  const pattern = input.pattern !== undefined ? normalizePattern(matchType, input.pattern) : rule.pattern;
+  const pattern =
+    input.pattern !== undefined ? normalizePattern(matchType, input.pattern) : rule.pattern;
   const updated = await ctx.db.categorizationRule.update({
     where: { id },
     data: { matchType, pattern, accountNumber, vatCode },
@@ -84,7 +92,10 @@ export async function deleteRule(ctx: SessionContext, id: string) {
 // ---------- Chart of accounts ----------
 
 const AccountSchema = z.object({
-  number: z.string().trim().regex(/^\d{1,10}$/, "Kontonummer skal være 1-10 cifre"),
+  number: z
+    .string()
+    .trim()
+    .regex(/^\d{1,10}$/, "Kontonummer skal være 1-10 cifre"),
   name: z.string().trim().min(1, "Navn skal udfyldes").max(100),
   type: z.enum(["REVENUE", "EXPENSE", "ASSET", "LIABILITY", "EQUITY"]),
   defaultVatCode: z.string().trim().max(10).nullable(),
@@ -100,7 +111,8 @@ export async function listAccounts(ctx: SessionContext) {
 
 async function assertVat(ctx: SessionContext, code: string | null | undefined) {
   if (!code) return;
-  if (!(await ctx.db.vatCode.findFirst({ where: { code } }))) throw badRequest(`Momskoden ${code} findes ikke.`);
+  if (!(await ctx.db.vatCode.findFirst({ where: { code } })))
+    throw badRequest(`Momskoden ${code} findes ikke.`);
 }
 
 export async function createAccount(ctx: SessionContext, raw: unknown) {
@@ -109,7 +121,9 @@ export async function createAccount(ctx: SessionContext, raw: unknown) {
   if (await ctx.db.account.findFirst({ where: { number: input.number } })) {
     throw conflict(`Konto ${input.number} findes allerede.`);
   }
-  const acc = await ctx.db.account.create({ data: { organizationId: ctx.organizationId, ...input } });
+  const acc = await ctx.db.account.create({
+    data: { organizationId: ctx.organizationId, ...input },
+  });
   await audit(ctx.db, ctx, "account.update", "Account", acc.id, { created: true });
   return acc;
 }
@@ -143,7 +157,10 @@ export async function updateVatCode(ctx: SessionContext, id: string, raw: unknow
 export async function getOrganizationOverview(ctx: SessionContext) {
   const [org, users] = await Promise.all([
     prisma.organization.findUniqueOrThrow({ where: { id: ctx.organizationId } }),
-    ctx.db.user.findMany({ orderBy: { createdAt: "asc" }, select: { id: true, name: true, email: true, role: true, createdAt: true } }),
+    ctx.db.user.findMany({
+      orderBy: { createdAt: "asc" },
+      select: { id: true, name: true, email: true, role: true, createdAt: true },
+    }),
   ]);
   return { org, users };
 }

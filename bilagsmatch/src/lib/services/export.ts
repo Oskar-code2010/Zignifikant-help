@@ -9,8 +9,16 @@ import { formatDKK } from "@/lib/money";
 import { getClient } from "./clients";
 
 const Period = z.object({
-  from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal("")),
-  to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal("")),
+  from: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional()
+    .or(z.literal("")),
+  to: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional()
+    .or(z.literal("")),
 });
 
 export const ExportSchema = Period.extend({
@@ -18,10 +26,17 @@ export const ExportSchema = Period.extend({
   includeExported: z.boolean().default(false),
 });
 
-function periodWhere(clientId: string, from: string | undefined, to: string | undefined): Prisma.JournalEntryWhereInput {
+function periodWhere(
+  clientId: string,
+  from: string | undefined,
+  to: string | undefined,
+): Prisma.JournalEntryWhereInput {
   const f = fromIsoDate(from);
   const t = fromIsoDate(to);
-  return { clientId, ...(f || t ? { date: { ...(f ? { gte: f } : {}), ...(t ? { lte: t } : {}) } } : {}) };
+  return {
+    clientId,
+    ...(f || t ? { date: { ...(f ? { gte: f } : {}), ...(t ? { lte: t } : {}) } } : {}),
+  };
 }
 
 export async function exportPreview(ctx: SessionContext, clientId: string, raw: unknown) {
@@ -66,7 +81,12 @@ export async function createExport(ctx: SessionContext, clientId: string, raw: u
   });
   return {
     csv,
-    filename: exportFilename(client.name, input.preset, fromIsoDate(input.from || undefined), fromIsoDate(input.to || undefined)),
+    filename: exportFilename(
+      client.name,
+      input.preset,
+      fromIsoDate(input.from || undefined),
+      fromIsoDate(input.to || undefined),
+    ),
     count: entries.length,
   };
 }
@@ -83,7 +103,9 @@ export async function missingReceipts(ctx: SessionContext, clientId: string) {
     orderBy: { bookingDate: "asc" },
   });
   const total = txs.reduce((s, t) => s + t.amountOre, 0);
-  const lines = txs.map((t) => `- ${formatDate(t.bookingDate)}  ${t.text}  ${formatDKK(t.amountOre)}`);
+  const lines = txs.map(
+    (t) => `- ${formatDate(t.bookingDate)}  ${t.text}  ${formatDKK(t.amountOre)}`,
+  );
   const email = [
     `Emne: Manglende bilag – ${client.name}`,
     "",

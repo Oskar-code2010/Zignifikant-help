@@ -10,11 +10,15 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiFetch<T>(url: string, init: RequestInit & { json?: unknown } = {}): Promise<T> {
+export async function apiFetch<T>(
+  url: string,
+  init: RequestInit & { json?: unknown } = {},
+): Promise<T> {
   const { json, ...rest } = init;
   const res = await fetch(url, {
     ...rest,
-    headers: json !== undefined ? { "content-type": "application/json", ...rest.headers } : rest.headers,
+    headers:
+      json !== undefined ? { "content-type": "application/json", ...rest.headers } : rest.headers,
     body: json !== undefined ? JSON.stringify(json) : rest.body,
   });
   const type = res.headers.get("content-type") ?? "";

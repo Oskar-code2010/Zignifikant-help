@@ -40,7 +40,9 @@ export function supplierNamePattern(name: string): string {
 }
 
 function bestRule(rules: RuleLike[]): RuleLike | undefined {
-  return [...rules].sort((a, b) => b.timesApplied - a.timesApplied || b.pattern.length - a.pattern.length)[0];
+  return [...rules].sort(
+    (a, b) => b.timesApplied - a.timesApplied || b.pattern.length - a.pattern.length,
+  )[0];
 }
 
 function keywordHit(haystack: string, rules: readonly KeywordRule[]): KeywordRule | undefined {
@@ -48,24 +50,62 @@ function keywordHit(haystack: string, rules: readonly KeywordRule[]): KeywordRul
   return rules.find((r) => r.keywords.some((k) => h.includes(` ${k} `)));
 }
 
-export function suggestAccount(input: SuggestionInput, rules: RuleLike[], keywordRules: readonly KeywordRule[] = KEYWORD_RULES): Suggestion | null {
+export function suggestAccount(
+  input: SuggestionInput,
+  rules: RuleLike[],
+  keywordRules: readonly KeywordRule[] = KEYWORD_RULES,
+): Suggestion | null {
   if (input.supplierCvr) {
     const cvr = normalizeCvr(input.supplierCvr);
     const r = bestRule(rules.filter((x) => x.matchType === "SUPPLIER_CVR" && x.pattern === cvr));
-    if (r) return { ...pick(r), source: "RULE_CVR", ruleId: r.id, explanation: `Lært regel for CVR ${cvr} (brugt ${r.timesApplied} gange)` };
+    if (r)
+      return {
+        ...pick(r),
+        source: "RULE_CVR",
+        ruleId: r.id,
+        explanation: `Lært regel for CVR ${cvr} (brugt ${r.timesApplied} gange)`,
+      };
   }
   if (input.supplierName) {
     const p = supplierNamePattern(input.supplierName);
-    const r = p ? bestRule(rules.filter((x) => x.matchType === "SUPPLIER_NAME" && x.pattern === p)) : undefined;
-    if (r) return { ...pick(r), source: "RULE_NAME", ruleId: r.id, explanation: `Lært regel for leverandøren "${input.supplierName}" (brugt ${r.timesApplied} gange)` };
+    const r = p
+      ? bestRule(rules.filter((x) => x.matchType === "SUPPLIER_NAME" && x.pattern === p))
+      : undefined;
+    if (r)
+      return {
+        ...pick(r),
+        source: "RULE_NAME",
+        ruleId: r.id,
+        explanation: `Lært regel for leverandøren "${input.supplierName}" (brugt ${r.timesApplied} gange)`,
+      };
   }
   if (input.bankText) {
     const text = input.bankText.toLowerCase();
-    const r = bestRule(rules.filter((x) => x.matchType === "BANK_TEXT_CONTAINS" && x.pattern.length > 0 && text.includes(x.pattern.toLowerCase())));
-    if (r) return { ...pick(r), source: "RULE_BANK_TEXT", ruleId: r.id, explanation: `Lært regel: bankteksten indeholder "${r.pattern}"` };
+    const r = bestRule(
+      rules.filter(
+        (x) =>
+          x.matchType === "BANK_TEXT_CONTAINS" &&
+          x.pattern.length > 0 &&
+          text.includes(x.pattern.toLowerCase()),
+      ),
+    );
+    if (r)
+      return {
+        ...pick(r),
+        source: "RULE_BANK_TEXT",
+        ruleId: r.id,
+        explanation: `Lært regel: bankteksten indeholder "${r.pattern}"`,
+      };
   }
   const kw = keywordHit(`${input.supplierName ?? ""} ${input.bankText ?? ""}`, keywordRules);
-  if (kw) return { accountNumber: kw.accountNumber, vatCode: kw.vatCode, source: "KEYWORD", ruleId: null, explanation: `Standardforslag: ${kw.label}` };
+  if (kw)
+    return {
+      accountNumber: kw.accountNumber,
+      vatCode: kw.vatCode,
+      source: "KEYWORD",
+      ruleId: null,
+      explanation: `Standardforslag: ${kw.label}`,
+    };
   return null;
 }
 
@@ -77,7 +117,9 @@ function pick(r: RuleLike) {
  * Which rule to create/strengthen when the bookkeeper confirms a posting.
  * Prefer the most specific key available: CVR, then supplier name, then a bank-text keyword.
  */
-export function learningKey(input: SuggestionInput): { matchType: RuleMatchType; pattern: string } | null {
+export function learningKey(
+  input: SuggestionInput,
+): { matchType: RuleMatchType; pattern: string } | null {
   if (input.supplierCvr && /^\d{8}$/.test(normalizeCvr(input.supplierCvr))) {
     return { matchType: "SUPPLIER_CVR", pattern: normalizeCvr(input.supplierCvr) };
   }

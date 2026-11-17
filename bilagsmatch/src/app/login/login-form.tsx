@@ -41,11 +41,24 @@ export function LoginForm() {
         <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="email">E-mail</Label>
-            <Input id="email" name="email" type="email" autoComplete="username" required autoFocus />
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="username"
+              required
+              autoFocus
+            />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="password">Adgangskode</Label>
-            <Input id="password" name="password" type="password" autoComplete="current-password" required />
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+            />
           </div>
           {error ? (
             <p role="alert" className="text-sm text-danger">

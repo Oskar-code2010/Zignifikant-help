@@ -30,27 +30,33 @@ export default async function SettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle>AI-aflæsning</CardTitle>
-          <CardDescription>Bruges til at aflæse leverandør, beløb, moms og datoer fra bilag.</CardDescription>
+          <CardDescription>
+            Bruges til at aflæse leverandør, beløb, moms og datoer fra bilag.
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-2 text-sm" data-testid="ai-status">
           {real ? (
             <>
               <p>
-                <Badge variant="success">Aktiv</Badge> Anthropic Claude · model <code>{anthropicModel()}</code>
+                <Badge variant="success">Aktiv</Badge> Anthropic Claude · model{" "}
+                <code>{anthropicModel()}</code>
               </p>
               <p className="text-muted-foreground">
-                Bilag sendes til Anthropics API til aflæsning. Sørg for at det er dækket af jeres databehandleraftaler.
+                Bilag sendes til Anthropics API til aflæsning. Sørg for at det er dækket af jeres
+                databehandleraftaler.
               </p>
             </>
           ) : (
             <>
               <p>
-                <Badge variant="warning">Demo-tilstand</Badge> Ingen <code>ANTHROPIC_API_KEY</code> er sat.
+                <Badge variant="warning">Demo-tilstand</Badge> Ingen <code>ANTHROPIC_API_KEY</code>{" "}
+                er sat.
               </p>
               <p className="text-muted-foreground">
-                Bilag aflæses med deterministiske demo-data. Kendte eksempelbilag får korrekte data; andre filer får et
-                kvalificeret gæt ud fra filnavnet med lav sikkerhed. Sæt <code>ANTHROPIC_API_KEY</code> i <code>.env</code>{" "}
-                og genstart for at bruge rigtig AI (model: <code>{anthropicModel()}</code>).
+                Bilag aflæses med deterministiske demo-data. Kendte eksempelbilag får korrekte data;
+                andre filer får et kvalificeret gæt ud fra filnavnet med lav sikkerhed. Sæt{" "}
+                <code>ANTHROPIC_API_KEY</code> i <code>.env</code> og genstart for at bruge rigtig
+                AI (model: <code>{anthropicModel()}</code>).
               </p>
             </>
           )}
@@ -60,7 +66,11 @@ export default async function SettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Brugere</CardTitle>
-          <CardDescription>{isOwner ? "Som ejer kan du oprette nye brugere i organisationen." : "Kun ejere kan oprette brugere."}</CardDescription>
+          <CardDescription>
+            {isOwner
+              ? "Som ejer kan du oprette nye brugere i organisationen."
+              : "Kun ejere kan oprette brugere."}
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <Table>

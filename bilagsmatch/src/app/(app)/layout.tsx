@@ -19,7 +19,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-14 items-center justify-end gap-3 border-b border-border bg-card px-6">
           {mock ? (
-            <Badge variant="warning" data-testid="demo-badge" title="Ingen ANTHROPIC_API_KEY sat – dokumenter aflæses med demo-data">
+            <Badge
+              variant="warning"
+              data-testid="demo-badge"
+              title="Ingen ANTHROPIC_API_KEY sat – dokumenter aflæses med demo-data"
+            >
               Demo-tilstand (ingen AI-nøgle)
             </Badge>
           ) : (

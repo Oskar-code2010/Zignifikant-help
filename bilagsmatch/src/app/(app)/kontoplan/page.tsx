@@ -12,8 +12,20 @@ export default async function ChartPage() {
     <div className="flex flex-col gap-5">
       <h1 className="text-2xl font-semibold">Kontoplan og momskoder</h1>
       <ChartEditor
-        accounts={accounts.map((a) => ({ id: a.id, number: a.number, name: a.name, type: a.type, defaultVatCode: a.defaultVatCode }))}
-        vatCodes={vatCodes.map((v) => ({ id: v.id, code: v.code, name: v.name, description: v.description, ratePercent: v.ratePercent }))}
+        accounts={accounts.map((a) => ({
+          id: a.id,
+          number: a.number,
+          name: a.name,
+          type: a.type,
+          defaultVatCode: a.defaultVatCode,
+        }))}
+        vatCodes={vatCodes.map((v) => ({
+          id: v.id,
+          code: v.code,
+          name: v.name,
+          description: v.description,
+          ratePercent: v.ratePercent,
+        }))}
       />
     </div>
   );

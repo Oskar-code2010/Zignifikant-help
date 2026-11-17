@@ -67,7 +67,9 @@ export async function deleteClient(ctx: SessionContext, id: string, raw: unknown
   const client = await getClient(ctx, id);
   const { confirmName } = DeleteClientSchema.parse(raw);
   if (confirmName.trim() !== client.name) {
-    throw badRequest("Navnet matcher ikke. Skriv klientens navn præcist for at bekræfte sletningen.");
+    throw badRequest(
+      "Navnet matcher ikke. Skriv klientens navn præcist for at bekræfte sletningen.",
+    );
   }
   await ctx.db.client.delete({ where: { id } });
   await getStorage().deleteClient(ctx.organizationId, id);

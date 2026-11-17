@@ -5,18 +5,96 @@
 
 /** Legal forms and generic corporate words that carry no identity. */
 const COMPANY_NOISE = new Set([
-  "aps", "as", "a/s", "ivs", "is", "k/s", "ks", "p/s", "ltd", "limited", "inc", "incorporated", "llc", "plc",
-  "gmbh", "ag", "bv", "nv", "ab", "oy", "sa", "sarl", "srl", "pty", "co", "corp", "corporation", "company",
-  "unlimited", "international", "intl", "operations", "holding", "group", "europe", "nordic", "nordics",
-  "ireland", "denmark", "danmark", "distribution", "systems", "software", "platforms", "payments", "services",
-  "the", "og", "and", "of",
+  "aps",
+  "as",
+  "a/s",
+  "ivs",
+  "is",
+  "k/s",
+  "ks",
+  "p/s",
+  "ltd",
+  "limited",
+  "inc",
+  "incorporated",
+  "llc",
+  "plc",
+  "gmbh",
+  "ag",
+  "bv",
+  "nv",
+  "ab",
+  "oy",
+  "sa",
+  "sarl",
+  "srl",
+  "pty",
+  "co",
+  "corp",
+  "corporation",
+  "company",
+  "unlimited",
+  "international",
+  "intl",
+  "operations",
+  "holding",
+  "group",
+  "europe",
+  "nordic",
+  "nordics",
+  "ireland",
+  "denmark",
+  "danmark",
+  "distribution",
+  "systems",
+  "software",
+  "platforms",
+  "payments",
+  "services",
+  "the",
+  "og",
+  "and",
+  "of",
 ]);
 
 /** Card terminal / bank noise in bank texts. */
 const BANK_NOISE = new Set([
-  "visa", "dankort", "visa/dankort", "mastercard", "maestro", "mobilepay", "mobile", "pay", "nets", "kortkøb",
-  "dankortkøb", "dankort-køb", "købt", "køb", "pos", "betaling", "betalt", "overførsel", "overf", "fra", "til",
-  "kort", "nr", "ref", "dkk", "eur", "usd", "sek", "nok", "gbp", "www", "com", "dk", "faktura", "fakt", "kurs",
+  "visa",
+  "dankort",
+  "visa/dankort",
+  "mastercard",
+  "maestro",
+  "mobilepay",
+  "mobile",
+  "pay",
+  "nets",
+  "kortkøb",
+  "dankortkøb",
+  "dankort-køb",
+  "købt",
+  "køb",
+  "pos",
+  "betaling",
+  "betalt",
+  "overførsel",
+  "overf",
+  "fra",
+  "til",
+  "kort",
+  "nr",
+  "ref",
+  "dkk",
+  "eur",
+  "usd",
+  "sek",
+  "nok",
+  "gbp",
+  "www",
+  "com",
+  "dk",
+  "faktura",
+  "fakt",
+  "kurs",
 ]);
 
 /** Known short-hands that banks print instead of the company name. */
@@ -50,7 +128,9 @@ export function normalizeSupplier(name: string): string[] {
 
 /** Normalize a bank text into tokens. "Visa/Dankort SHOPIFY* 123456" → ["shopify"]. */
 export function normalizeBankText(text: string): string[] {
-  return baseTokens(text).filter((t) => !BANK_NOISE.has(t) && !COMPANY_NOISE.has(t) && !/^\d+$/.test(t));
+  return baseTokens(text).filter(
+    (t) => !BANK_NOISE.has(t) && !COMPANY_NOISE.has(t) && !/^\d+$/.test(t),
+  );
 }
 
 /** Jaro-Winkler similarity in [0, 1]. */
@@ -109,7 +189,10 @@ export function supplierSimilarity(supplierName: string, bankText: string): numb
     let best = 0;
     for (const bt of b) {
       // Prefix containment ("emballagehuset" vs "emballageh") counts as a strong match.
-      const sim = token.length >= 4 && bt.length >= 4 && (bt.startsWith(token) || token.startsWith(bt)) ? 0.97 : jaroWinkler(token, bt);
+      const sim =
+        token.length >= 4 && bt.length >= 4 && (bt.startsWith(token) || token.startsWith(bt))
+          ? 0.97
+          : jaroWinkler(token, bt);
       if (sim > best) best = sim;
     }
     weighted += best * token.length;

@@ -13,8 +13,8 @@ export default async function RulesPage() {
       <div>
         <h1 className="text-2xl font-semibold">Regler</h1>
         <p className="text-sm text-muted-foreground">
-          Regler bestemmer konto og momskode for kendte leverandører. Rækkefølge: CVR → leverandørnavn → banktekst →
-          indbyggede standardforslag.
+          Regler bestemmer konto og momskode for kendte leverandører. Rækkefølge: CVR →
+          leverandørnavn → banktekst → indbyggede standardforslag.
         </p>
       </div>
       <RulesTable

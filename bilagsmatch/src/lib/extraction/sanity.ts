@@ -8,7 +8,12 @@ const TOLERANCE_ORE = 100; // ±1 kr
  * - net + VAT ≈ total (±1 kr)
  * - VAT ≈ 20 % of total (25 % VAT) – other rates are allowed but noted
  */
-export function sanityCheck(r: Pick<ExtractionResult, "totalAmountOre" | "vatAmountOre" | "netAmountOre" | "invoiceDate" | "dueDate" | "currency">): string[] {
+export function sanityCheck(
+  r: Pick<
+    ExtractionResult,
+    "totalAmountOre" | "vatAmountOre" | "netAmountOre" | "invoiceDate" | "dueDate" | "currency"
+  >,
+): string[] {
   const warnings: string[] = [];
   const { totalAmountOre: total, vatAmountOre: vat, netAmountOre: net } = r;
 

@@ -1,12 +1,46 @@
 import { describe, expect, it } from "vitest";
-import { BOM, buildKassekladdeCsv, csvField, exportFilename, type ExportEntry } from "@/lib/export/kassekladde";
+import {
+  BOM,
+  buildKassekladdeCsv,
+  csvField,
+  exportFilename,
+  type ExportEntry,
+} from "@/lib/export/kassekladde";
 import { makeDate } from "@/lib/dates";
 
 const entries: ExportEntry[] = [
-  { date: makeDate(2026, 9, 20)!, voucherNumber: 2, text: "GLS Denmark A/S – Faktura 90881234", accountNumber: "1350", vatCode: "I25", amountOre: 187500 },
-  { date: makeDate(2026, 9, 2)!, voucherNumber: 1, text: "Shopify; abonnement", accountNumber: "3610", vatCode: "IEUY", amountOre: 53821 },
-  { date: makeDate(2026, 10, 5)!, voucherNumber: 3, text: "Emballagehuset – Kreditnota 2026-131", accountNumber: "1360", vatCode: "I25", amountOre: -50000 },
-  { date: makeDate(2026, 10, 6)!, voucherNumber: 4, text: "QuickPay gebyrer", accountNumber: "3620", vatCode: "NONE", amountOre: 1234567 },
+  {
+    date: makeDate(2026, 9, 20)!,
+    voucherNumber: 2,
+    text: "GLS Denmark A/S – Faktura 90881234",
+    accountNumber: "1350",
+    vatCode: "I25",
+    amountOre: 187500,
+  },
+  {
+    date: makeDate(2026, 9, 2)!,
+    voucherNumber: 1,
+    text: "Shopify; abonnement",
+    accountNumber: "3610",
+    vatCode: "IEUY",
+    amountOre: 53821,
+  },
+  {
+    date: makeDate(2026, 10, 5)!,
+    voucherNumber: 3,
+    text: "Emballagehuset – Kreditnota 2026-131",
+    accountNumber: "1360",
+    vatCode: "I25",
+    amountOre: -50000,
+  },
+  {
+    date: makeDate(2026, 10, 6)!,
+    voucherNumber: 4,
+    text: "QuickPay gebyrer",
+    accountNumber: "3620",
+    vatCode: "NONE",
+    amountOre: 1234567,
+  },
 ];
 
 describe("kassekladde CSV", () => {
@@ -27,7 +61,9 @@ describe("kassekladde CSV", () => {
   });
 
   it("e-conomic preset column order", () => {
-    const lines = buildKassekladdeCsv(entries.slice(0, 1), "economic", "5810").slice(1).split("\r\n");
+    const lines = buildKassekladdeCsv(entries.slice(0, 1), "economic", "5810")
+      .slice(1)
+      .split("\r\n");
     expect(lines[0]).toBe("Dato;Bilagsnr.;Konto;Tekst;Beløb;Modkonto;Momskode");
     expect(lines[1]).toBe("20-09-2026;2;1350;GLS Denmark A/S – Faktura 90881234;1875,00;5810;I25");
   });
@@ -39,14 +75,20 @@ describe("kassekladde CSV", () => {
   });
 
   it("keeps æøå as UTF-8 bytes after the BOM", () => {
-    const csv = buildKassekladdeCsv([{ ...entries[0]!, text: "Køb af æbler på Ærø" }], "generic", "5810");
+    const csv = buildKassekladdeCsv(
+      [{ ...entries[0]!, text: "Køb af æbler på Ærø" }],
+      "generic",
+      "5810",
+    );
     const bytes = Buffer.from(csv, "utf8");
     expect([...bytes.subarray(0, 3)]).toEqual([0xef, 0xbb, 0xbf]);
     expect(bytes.toString("utf8")).toContain("Køb af æbler på Ærø");
   });
 
   it("empty export still has a header", () => {
-    expect(buildKassekladdeCsv([], "generic", "5810")).toBe(`${BOM}Dato;Bilagsnr.;Tekst;Konto;Momskode;Beløb;Modkonto\r\n`);
+    expect(buildKassekladdeCsv([], "generic", "5810")).toBe(
+      `${BOM}Dato;Bilagsnr.;Tekst;Konto;Momskode;Beløb;Modkonto\r\n`,
+    );
   });
 
   it("escapes quotes and neutralizes formula injection in text", () => {
@@ -58,9 +100,11 @@ describe("kassekladde CSV", () => {
   });
 
   it("builds a safe filename", () => {
-    expect(exportFilename("Kaffekompagniet IVS", "dinero", makeDate(2026, 9, 1), makeDate(2026, 9, 30))).toBe(
-      "kassekladde_kaffekompagniet-ivs_dinero_01-09-2026_30-09-2026.csv",
+    expect(
+      exportFilename("Kaffekompagniet IVS", "dinero", makeDate(2026, 9, 1), makeDate(2026, 9, 30)),
+    ).toBe("kassekladde_kaffekompagniet-ivs_dinero_01-09-2026_30-09-2026.csv");
+    expect(exportFilename("Ærø Æbler ApS", "generic", null, null)).toBe(
+      "kassekladde_aeroe-aebler-aps_generic.csv",
     );
-    expect(exportFilename("Ærø Æbler ApS", "generic", null, null)).toBe("kassekladde_aeroe-aebler-aps_generic.csv");
   });
 });

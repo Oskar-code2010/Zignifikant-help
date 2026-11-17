@@ -101,6 +101,9 @@ export function forOrg(organizationId: string) {
 }
 
 export type ScopedDb = ReturnType<typeof forOrg>;
-export type ScopedTx = Omit<ScopedDb, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">;
+export type ScopedTx = Omit<
+  ScopedDb,
+  "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends"
+>;
 
 export { Prisma };

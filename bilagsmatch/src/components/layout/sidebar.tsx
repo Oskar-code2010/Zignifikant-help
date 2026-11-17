@@ -33,7 +33,9 @@ export function Sidebar({ orgName }: { orgName: string }) {
               aria-current={active ? "page" : undefined}
               className={cn(
                 "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                active ? "bg-accent text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                active
+                  ? "bg-accent text-primary"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
               <Icon className="h-4 w-4" aria-hidden />
@@ -42,7 +44,9 @@ export function Sidebar({ orgName }: { orgName: string }) {
           );
         })}
       </nav>
-      <div className="border-t border-border px-5 py-3 text-xs text-muted-foreground">{orgName}</div>
+      <div className="border-t border-border px-5 py-3 text-xs text-muted-foreground">
+        {orgName}
+      </div>
     </aside>
   );
 }

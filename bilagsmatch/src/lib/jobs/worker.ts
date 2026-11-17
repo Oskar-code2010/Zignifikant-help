@@ -1,4 +1,11 @@
-import { claimNextJob, completeJob, EXTRACT_DOCUMENT, failJob, onJobEnqueued, type ClaimedJob } from "./queue";
+import {
+  claimNextJob,
+  completeJob,
+  EXTRACT_DOCUMENT,
+  failJob,
+  onJobEnqueued,
+  type ClaimedJob,
+} from "./queue";
 import { extractDocument } from "@/lib/services/extraction";
 import { z } from "zod";
 
@@ -58,7 +65,9 @@ export function startWorker(): void {
       if (!job) return;
       running++;
       void runJob(job)
-        .catch((err: unknown) => console.error("Job failed:", err instanceof Error ? err.message : "unknown"))
+        .catch((err: unknown) =>
+          console.error("Job failed:", err instanceof Error ? err.message : "unknown"),
+        )
         .finally(() => {
           running--;
           kick();

@@ -46,9 +46,12 @@ export function ManualMatchDialog({
     if (!open) return;
     const ctrl = new AbortController();
     const t = setTimeout(() => {
-      fetch(`/api/clients/${clientId}/transactions/${transaction.id}/candidates?q=${encodeURIComponent(q)}`, {
-        signal: ctrl.signal,
-      })
+      fetch(
+        `/api/clients/${clientId}/transactions/${transaction.id}/candidates?q=${encodeURIComponent(q)}`,
+        {
+          signal: ctrl.signal,
+        },
+      )
         .then(async (r) => {
           if (!r.ok) throw new Error("Søgningen fejlede.");
           const body = (await r.json()) as { documents: CandidateDoc[] };
@@ -80,7 +83,12 @@ export function ManualMatchDialog({
     try {
       await apiFetch(`/api/clients/${clientId}/matches/manual`, {
         method: "POST",
-        json: { transactionId: transaction.id, documentId: selected.id, accountNumber: account, vatCode: vat },
+        json: {
+          transactionId: transaction.id,
+          documentId: selected.id,
+          accountNumber: account,
+          vatCode: vat,
+        },
       });
       toast.success("Manuelt match gemt og bogført i kladden.");
       onMatched();
@@ -97,19 +105,31 @@ export function ManualMatchDialog({
         <DialogHeader>
           <DialogTitle>Find bilag manuelt</DialogTitle>
           <DialogDescription>
-            {transaction.text} · <span className="tabular">{formatDKK(transaction.amountOre)}</span> ·{" "}
-            {formatDate(new Date(transaction.bookingDate))}
+            {transaction.text} · <span className="tabular">{formatDKK(transaction.amountOre)}</span>{" "}
+            · {formatDate(new Date(transaction.bookingDate))}
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-1">
           <Label htmlFor="manual-search">Søg på leverandør, fakturanr., filnavn eller beløb</Label>
-          <Input id="manual-search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="fx postnord eller 89,95" autoFocus />
+          <Input
+            id="manual-search"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="fx postnord eller 89,95"
+            autoFocus
+          />
         </div>
-        <ul className="flex max-h-72 flex-col gap-1 overflow-y-auto" aria-label="Bilag" data-testid="manual-candidates">
+        <ul
+          className="flex max-h-72 flex-col gap-1 overflow-y-auto"
+          aria-label="Bilag"
+          data-testid="manual-candidates"
+        >
           {docs === null ? (
             <li className="text-sm text-muted-foreground">Søger…</li>
           ) : docs.length === 0 ? (
-            <li className="text-sm text-muted-foreground">Ingen uafstemte bilag matcher søgningen.</li>
+            <li className="text-sm text-muted-foreground">
+              Ingen uafstemte bilag matcher søgningen.
+            </li>
           ) : (
             docs.map((d) => (
               <li key={d.id}>
@@ -118,11 +138,15 @@ export function ManualMatchDialog({
                   onClick={() => choose(d)}
                   className={cn(
                     "flex w-full items-center gap-3 rounded-md border px-3 py-2 text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                    selected?.id === d.id ? "border-primary bg-accent" : "border-border hover:bg-muted",
+                    selected?.id === d.id
+                      ? "border-primary bg-accent"
+                      : "border-border hover:bg-muted",
                   )}
                 >
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate font-medium">{d.supplierName ?? d.originalFilename}</span>
+                    <span className="block truncate font-medium">
+                      {d.supplierName ?? d.originalFilename}
+                    </span>
                     <span className="block truncate text-xs text-muted-foreground">
                       {d.invoiceNumber ? `Nr. ${d.invoiceNumber} · ` : ""}
                       {d.invoiceDate ? formatDate(new Date(d.invoiceDate)) : "ukendt dato"}
@@ -135,7 +159,13 @@ export function ManualMatchDialog({
                         ? `${formatDKK(d.totalAmountOre).replace(" kr.", "")} ${d.currency}`
                         : formatDKK(d.totalAmountOre)}
                   </span>
-                  {d.score !== null ? <span className="w-10 shrink-0 text-right text-xs text-muted-foreground">{d.score}</span> : <span className="w-10" />}
+                  {d.score !== null ? (
+                    <span className="w-10 shrink-0 text-right text-xs text-muted-foreground">
+                      {d.score}
+                    </span>
+                  ) : (
+                    <span className="w-10" />
+                  )}
                 </button>
               </li>
             ))
@@ -145,7 +175,11 @@ export function ManualMatchDialog({
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">
               <Label htmlFor="manual-account">Konto</Label>
-              <Select id="manual-account" value={account} onChange={(e) => setAccount(e.target.value)}>
+              <Select
+                id="manual-account"
+                value={account}
+                onChange={(e) => setAccount(e.target.value)}
+              >
                 <option value="">– vælg konto –</option>
                 {accounts.map((a) => (
                   <option key={a.number} value={a.number}>

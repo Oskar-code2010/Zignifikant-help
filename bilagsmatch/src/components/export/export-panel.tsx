@@ -31,7 +31,13 @@ interface Preview {
   exportedCount: number;
 }
 
-export function ExportPanel({ clientId, counterAccount }: { clientId: string; counterAccount: string }) {
+export function ExportPanel({
+  clientId,
+  counterAccount,
+}: {
+  clientId: string;
+  counterAccount: string;
+}) {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [preset, setPreset] = useState<"generic" | "economic" | "dinero">("generic");
@@ -41,7 +47,9 @@ export function ExportPanel({ clientId, counterAccount }: { clientId: string; co
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch(`/api/clients/${clientId}/export?from=${from}&to=${to}`, { cache: "no-store" });
+      const res = await fetch(`/api/clients/${clientId}/export?from=${from}&to=${to}`, {
+        cache: "no-store",
+      });
       if (!res.ok) throw new Error("Kunne ikke hente kladdeposteringer.");
       setPreview((await res.json()) as Preview);
     } catch (err) {
@@ -95,15 +103,21 @@ export function ExportPanel({ clientId, counterAccount }: { clientId: string; co
       <CardHeader>
         <CardTitle>Eksportér kassekladde</CardTitle>
         <CardDescription>
-          CSV med semikolon, decimalkomma, datoer som dd-mm-åååå og UTF-8 med BOM. Modkonto: {counterAccount}. Kontrollér
-          altid formatet mod dit regnskabsprograms aktuelle importvejledning.
+          CSV med semikolon, decimalkomma, datoer som dd-mm-åååå og UTF-8 med BOM. Modkonto:{" "}
+          {counterAccount}. Kontrollér altid formatet mod dit regnskabsprograms aktuelle
+          importvejledning.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div className="grid grid-cols-1 items-end gap-3 md:grid-cols-4">
           <div className="flex flex-col gap-1">
             <Label htmlFor="exp-from">Fra dato</Label>
-            <Input id="exp-from" type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+            <Input
+              id="exp-from"
+              type="date"
+              value={from}
+              onChange={(e) => setFrom(e.target.value)}
+            />
           </div>
           <div className="flex flex-col gap-1">
             <Label htmlFor="exp-to">Til dato</Label>
@@ -111,7 +125,11 @@ export function ExportPanel({ clientId, counterAccount }: { clientId: string; co
           </div>
           <div className="flex flex-col gap-1">
             <Label htmlFor="exp-preset">Format</Label>
-            <Select id="exp-preset" value={preset} onChange={(e) => setPreset(e.target.value as typeof preset)}>
+            <Select
+              id="exp-preset"
+              value={preset}
+              onChange={(e) => setPreset(e.target.value as typeof preset)}
+            >
               <option value="generic">Generisk kassekladde</option>
               <option value="economic">e-conomic-kompatibel</option>
               <option value="dinero">Dinero-kompatibel</option>
@@ -123,13 +141,21 @@ export function ExportPanel({ clientId, counterAccount }: { clientId: string; co
         </div>
 
         {preview && preview.exportedCount > 0 ? (
-          <div className="flex flex-col gap-2 rounded-md bg-warning-soft p-3 text-sm text-warning" role="status">
+          <div
+            className="flex flex-col gap-2 rounded-md bg-warning-soft p-3 text-sm text-warning"
+            role="status"
+          >
             <p className="flex items-center gap-2 font-medium">
               <AlertTriangle className="h-4 w-4" aria-hidden />
               {preview.exportedCount} posteringer i perioden er allerede eksporteret.
             </p>
             <label className="flex items-center gap-2 text-foreground">
-              <input type="checkbox" checked={includeExported} onChange={(e) => setIncludeExported(e.target.checked)} className="h-4 w-4" />
+              <input
+                type="checkbox"
+                checked={includeExported}
+                onChange={(e) => setIncludeExported(e.target.checked)}
+                className="h-4 w-4"
+              />
               Medtag allerede eksporterede (risiko for dobbeltbogføring)
             </label>
           </div>
@@ -139,8 +165,8 @@ export function ExportPanel({ clientId, counterAccount }: { clientId: string; co
           <p className="text-sm text-muted-foreground">Henter…</p>
         ) : visible.length === 0 ? (
           <EmptyState title="Ingen nye kladdeposteringer">
-            Posteringer oprettes, når du bekræfter match under Afstemning. Allerede eksporterede posteringer vises kun, hvis du
-            vælger at medtage dem.
+            Posteringer oprettes, når du bekræfter match under Afstemning. Allerede eksporterede
+            posteringer vises kun, hvis du vælger at medtage dem.
           </EmptyState>
         ) : (
           <Table data-testid="export-preview">
@@ -164,14 +190,22 @@ export function ExportPanel({ clientId, counterAccount }: { clientId: string; co
                   <TD className="tabular">{e.accountNumber}</TD>
                   <TD>{e.vatCode}</TD>
                   <TD className="tabular whitespace-nowrap text-right">{formatDKK(e.amountOre)}</TD>
-                  <TD>{e.exported ? <Badge variant="muted">Eksporteret</Badge> : <Badge variant="success">Ny</Badge>}</TD>
+                  <TD>
+                    {e.exported ? (
+                      <Badge variant="muted">Eksporteret</Badge>
+                    ) : (
+                      <Badge variant="success">Ny</Badge>
+                    )}
+                  </TD>
                 </TR>
               ))}
               <TR>
                 <TD colSpan={5} className="text-right font-medium">
                   I alt
                 </TD>
-                <TD className="tabular whitespace-nowrap text-right font-medium">{formatDKK(total)}</TD>
+                <TD className="tabular whitespace-nowrap text-right font-medium">
+                  {formatDKK(total)}
+                </TD>
                 <TD />
               </TR>
             </TBody>

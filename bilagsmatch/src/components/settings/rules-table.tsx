@@ -37,7 +37,9 @@ export function RulesTable({
   vatCodes: { code: string; name: string }[];
 }) {
   const router = useRouter();
-  const [edits, setEdits] = useState<Record<string, { accountNumber: string; vatCode: string }>>({});
+  const [edits, setEdits] = useState<Record<string, { accountNumber: string; vatCode: string }>>(
+    {},
+  );
   const [pending, setPending] = useState(false);
 
   async function save(r: RuleRow) {
@@ -143,8 +145,8 @@ export function RulesTable({
 
       {rules.length === 0 ? (
         <EmptyState title="Ingen regler endnu">
-          Regler oprettes automatisk, når du bekræfter et match med konto og momskode – så bliver næste bilag fra samme
-          leverandør udfyldt for dig.
+          Regler oprettes automatisk, når du bekræfter et match med konto og momskode – så bliver
+          næste bilag fra samme leverandør udfyldt for dig.
         </EmptyState>
       ) : (
         <Card>
@@ -174,7 +176,12 @@ export function RulesTable({
                       <Select
                         aria-label={`Konto for ${r.pattern}`}
                         value={e.accountNumber}
-                        onChange={(ev) => setEdits((s) => ({ ...s, [r.id]: { ...e, accountNumber: ev.target.value } }))}
+                        onChange={(ev) =>
+                          setEdits((s) => ({
+                            ...s,
+                            [r.id]: { ...e, accountNumber: ev.target.value },
+                          }))
+                        }
                         className="w-56"
                       >
                         {accountOptions}
@@ -184,19 +191,34 @@ export function RulesTable({
                       <Select
                         aria-label={`Momskode for ${r.pattern}`}
                         value={e.vatCode}
-                        onChange={(ev) => setEdits((s) => ({ ...s, [r.id]: { ...e, vatCode: ev.target.value } }))}
+                        onChange={(ev) =>
+                          setEdits((s) => ({ ...s, [r.id]: { ...e, vatCode: ev.target.value } }))
+                        }
                         className="w-28"
                       >
                         {vatOptions}
                       </Select>
                     </TD>
                     <TD className="tabular text-right">{r.timesApplied}</TD>
-                    <TD className="text-muted-foreground">{r.createdFrom === "MANUAL" ? "Manuelt" : "Lært"}</TD>
+                    <TD className="text-muted-foreground">
+                      {r.createdFrom === "MANUAL" ? "Manuelt" : "Lært"}
+                    </TD>
                     <TD className="whitespace-nowrap text-right">
-                      <Button size="sm" variant="outline" disabled={!dirty} onClick={() => void save(r)}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={!dirty}
+                        onClick={() => void save(r)}
+                      >
                         <Save aria-hidden /> Gem
                       </Button>{" "}
-                      <Button size="sm" variant="ghost" className="text-danger" onClick={() => void remove(r)} aria-label={`Slet regel ${r.pattern}`}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-danger"
+                        onClick={() => void remove(r)}
+                        aria-label={`Slet regel ${r.pattern}`}
+                      >
                         <Trash2 aria-hidden />
                       </Button>
                     </TD>

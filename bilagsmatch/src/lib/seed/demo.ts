@@ -44,7 +44,10 @@ export async function writeDemoFiles(): Promise<string> {
     const clientDir = path.join(dir, key);
     await fs.mkdir(path.join(clientDir, "bilag"), { recursive: true });
     for (const doc of SAMPLE_DOCUMENTS.filter((d) => d.client === key)) {
-      await fs.writeFile(path.join(clientDir, "bilag", doc.filename), await renderSamplePdf(doc, DEMO_CLIENTS[key]));
+      await fs.writeFile(
+        path.join(clientDir, "bilag", doc.filename),
+        await renderSamplePdf(doc, DEMO_CLIENTS[key]),
+      );
     }
     const csv = demoBankCsv(key);
     await fs.writeFile(path.join(clientDir, csv.filename), csv.content, "utf8");
@@ -91,7 +94,12 @@ export async function seedDemo(prisma: PrismaClient): Promise<string> {
 
     for (const sample of SAMPLE_DOCUMENTS.filter((d) => d.client === key)) {
       const bytes = Buffer.from(await renderSamplePdf(sample, info));
-      const storagePath = await storage.put({ organizationId: org.id, clientId: client.id, extension: "pdf", bytes });
+      const storagePath = await storage.put({
+        organizationId: org.id,
+        clientId: client.id,
+        extension: "pdf",
+        bytes,
+      });
       const doc = await ctx.db.document.create({
         data: {
           organizationId: org.id,
@@ -115,7 +123,13 @@ export async function seedDemo(prisma: PrismaClient): Promise<string> {
     const preview = await previewBankCsv(ctx, client.id, previewForm);
     const importForm = new FormData();
     importForm.append("file", file());
-    importForm.append("options", JSON.stringify({ ...preview.options, newBankAccountName: key === "nordlys" ? "Danske Bank drift" : "Nordea erhverv" }));
+    importForm.append(
+      "options",
+      JSON.stringify({
+        ...preview.options,
+        newBankAccountName: key === "nordlys" ? "Danske Bank drift" : "Nordea erhverv",
+      }),
+    );
     const res = await importBankCsv(ctx, client.id, importForm);
     transactions += res.imported;
   }

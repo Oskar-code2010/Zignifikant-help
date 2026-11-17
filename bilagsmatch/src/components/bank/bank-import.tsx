@@ -24,7 +24,13 @@ interface PreviewResponse {
   detection: { encodingLabel: string; formatName: string };
   options: Options;
   headers: string[];
-  preview: { line: number; bookingDate: string; text: string; amountOre: number; balanceOre: number | null }[];
+  preview: {
+    line: number;
+    bookingDate: string;
+    text: string;
+    amountOre: number;
+    balanceOre: number | null;
+  }[];
   totals: { rows: number; failed: number; skipped: number };
   failed: { line: number; reason: string }[];
 }
@@ -144,8 +150,9 @@ export function BankImport({
       <CardHeader>
         <CardTitle>Importér bankudtog</CardTitle>
         <CardDescription>
-          Upload en CSV-fil fra netbanken. Format, kolonner, datoformat og tegnsæt genkendes automatisk – du kan rette
-          det, før du importerer. Allerede importerede posteringer springes over.
+          Upload en CSV-fil fra netbanken. Format, kolonner, datoformat og tegnsæt genkendes
+          automatisk – du kan rette det, før du importerer. Allerede importerede posteringer
+          springes over.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -162,7 +169,9 @@ export function BankImport({
           <Button variant="outline" onClick={() => inputRef.current?.click()} disabled={pending}>
             <FileUp aria-hidden /> Vælg CSV-fil
           </Button>
-          <span className="text-sm text-muted-foreground">{file ? file.name : "Ingen fil valgt"}</span>
+          <span className="text-sm text-muted-foreground">
+            {file ? file.name : "Ingen fil valgt"}
+          </span>
         </div>
 
         {preview && options ? (
@@ -171,7 +180,9 @@ export function BankImport({
               <strong>{preview.detection.formatName}</strong> · {preview.detection.encodingLabel} ·{" "}
               {preview.totals.rows} gyldige rækker
               {preview.totals.failed > 0 ? `, ${preview.totals.failed} med fejl` : ""}
-              {preview.totals.skipped > 0 ? `, ${preview.totals.skipped} tomme/sumlinjer sprunget over` : ""}
+              {preview.totals.skipped > 0
+                ? `, ${preview.totals.skipped} tomme/sumlinjer sprunget over`
+                : ""}
             </p>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               {FIELDS.map((field) => (
@@ -210,7 +221,9 @@ export function BankImport({
                 <Select
                   id="opt-decimal"
                   value={options.decimal}
-                  onChange={(e) => update({ ...options, decimal: e.target.value === "." ? "." : "," })}
+                  onChange={(e) =>
+                    update({ ...options, decimal: e.target.value === "." ? "." : "," })
+                  }
                 >
                   <option value=",">Komma (1.234,56)</option>
                   <option value=".">Punktum (1234.56)</option>
@@ -222,7 +235,11 @@ export function BankImport({
                   id="opt-delim"
                   value={options.delimiter}
                   onChange={(e) =>
-                    update({ ...options, delimiter: e.target.value === "," ? "," : e.target.value === "\t" ? "\t" : ";" })
+                    update({
+                      ...options,
+                      delimiter:
+                        e.target.value === "," ? "," : e.target.value === "\t" ? "\t" : ";",
+                    })
                   }
                 >
                   <option value=";">Semikolon (;)</option>
@@ -248,10 +265,14 @@ export function BankImport({
                     <TD className="tabular text-muted-foreground">{r.line}</TD>
                     <TD className="tabular">{r.bookingDate}</TD>
                     <TD>{r.text}</TD>
-                    <TD className={`tabular text-right ${r.amountOre < 0 ? "text-danger" : "text-success"}`}>
+                    <TD
+                      className={`tabular text-right ${r.amountOre < 0 ? "text-danger" : "text-success"}`}
+                    >
                       {formatDKK(r.amountOre)}
                     </TD>
-                    <TD className="tabular text-right">{r.balanceOre === null ? "" : formatDKK(r.balanceOre)}</TD>
+                    <TD className="tabular text-right">
+                      {r.balanceOre === null ? "" : formatDKK(r.balanceOre)}
+                    </TD>
                   </TR>
                 ))}
               </TBody>
@@ -272,7 +293,12 @@ export function BankImport({
             <div className="flex flex-wrap items-end gap-3">
               <div className="flex flex-col gap-1">
                 <Label htmlFor="bank-account">Bankkonto</Label>
-                <Select id="bank-account" value={account} onChange={(e) => setAccount(e.target.value)} className="w-56">
+                <Select
+                  id="bank-account"
+                  value={account}
+                  onChange={(e) => setAccount(e.target.value)}
+                  className="w-56"
+                >
                   {bankAccounts.map((a) => (
                     <option key={a.id} value={a.id}>
                       {a.name}
@@ -284,7 +310,12 @@ export function BankImport({
               {account === "__new" ? (
                 <div className="flex flex-col gap-1">
                   <Label htmlFor="bank-account-name">Navn på ny konto</Label>
-                  <Input id="bank-account-name" value={newName} onChange={(e) => setNewName(e.target.value)} className="w-56" />
+                  <Input
+                    id="bank-account-name"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    className="w-56"
+                  />
                 </div>
               ) : null}
               <Button onClick={doImport} disabled={pending || preview.totals.rows === 0}>
@@ -295,10 +326,14 @@ export function BankImport({
         ) : null}
 
         {result ? (
-          <div role="status" className="rounded-md bg-success-soft p-3 text-sm" data-testid="import-result">
+          <div
+            role="status"
+            className="rounded-md bg-success-soft p-3 text-sm"
+            data-testid="import-result"
+          >
             <p>
-              <strong>{result.imported}</strong> importeret · <strong>{result.duplicates}</strong> sprunget over som
-              dubletter · <strong>{result.failed.length}</strong> fejlede
+              <strong>{result.imported}</strong> importeret · <strong>{result.duplicates}</strong>{" "}
+              sprunget over som dubletter · <strong>{result.failed.length}</strong> fejlede
             </p>
             {result.failed.length > 0 ? (
               <ul className="mt-1 list-disc pl-5 text-danger">

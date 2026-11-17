@@ -12,7 +12,6 @@ test("rejects a wrong password", async ({ page }) => {
   await page.getByLabel("Adgangskode").fill("forkert");
   await page.getByRole("button", { name: "Log ind" }).click();
   await expect(page.getByText("Forkert e-mail eller adgangskode.")).toBeVisible();
-
 });
 
 test("logs in and out", async ({ page }) => {

@@ -10,7 +10,8 @@ export function tokenize(text: string, delimiter: Delimiter): string[][] {
   return result.data.map((row) => row.map((c) => (c ?? "").trim()));
 }
 
-const SUMMARY_WORDS = /\b(saldo|i alt|ialt|total|sum|primo|ultimo|udskrevet|periode|kontonr|konto)\b/i;
+const SUMMARY_WORDS =
+  /\b(saldo|i alt|ialt|total|sum|primo|ultimo|udskrevet|periode|kontonr|konto)\b/i;
 
 function isBlankRow(cells: string[]): boolean {
   return cells.every((c) => c === "");
@@ -37,7 +38,9 @@ export function parseRows(rows: string[][], opts: ParseOptions): ParseResult {
     }
     const dateRaw = cell(cells, mapping.bookingDate);
     const hasAmountCells =
-      cell(cells, mapping.amount) !== "" || cell(cells, mapping.debit) !== "" || cell(cells, mapping.credit) !== "";
+      cell(cells, mapping.amount) !== "" ||
+      cell(cells, mapping.debit) !== "" ||
+      cell(cells, mapping.credit) !== "";
     const bookingDate = parseDateWithFormat(dateRaw, opts.dateFormat);
 
     if (!bookingDate) {
@@ -47,7 +50,11 @@ export function parseRows(rows: string[][], opts: ParseOptions): ParseResult {
         skipped++;
         continue;
       }
-      failed.push({ line, reason: `Ugyldig dato "${dateRaw}" (forventet ${opts.dateFormat})`, raw: cells });
+      failed.push({
+        line,
+        reason: `Ugyldig dato "${dateRaw}" (forventet ${opts.dateFormat})`,
+        raw: cells,
+      });
       continue;
     }
 
@@ -112,7 +119,9 @@ function normalizeForHash(text: string): string {
  * Compute a dedupe hash per row. Identical rows inside the same file (two equal coffees on the same day)
  * get an occurrence counter, so re-importing the file yields the same hashes and is fully deduplicated.
  */
-export function dedupeHashes(rows: Pick<ParsedRow, "bookingDate" | "amountOre" | "text" | "balanceOre">[]): string[] {
+export function dedupeHashes(
+  rows: Pick<ParsedRow, "bookingDate" | "amountOre" | "text" | "balanceOre">[],
+): string[] {
   const seen = new Map<string, number>();
   return rows.map((r) => {
     const base = `${toIsoDate(r.bookingDate)}|${r.amountOre}|${normalizeForHash(r.text)}|${r.balanceOre ?? ""}`;

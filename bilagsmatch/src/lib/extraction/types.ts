@@ -2,9 +2,7 @@ import { z } from "zod";
 import { MAX_AMOUNT_ORE } from "@/lib/money";
 
 const Ore = z.number().int().min(-MAX_AMOUNT_ORE).max(MAX_AMOUNT_ORE);
-const IsoDate = z
-  .string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/, "dato skal være YYYY-MM-DD");
+const IsoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "dato skal være YYYY-MM-DD");
 
 /** What an extraction provider returns. Amounts in integer øre; dates as YYYY-MM-DD. */
 export const ExtractionResultSchema = z.object({

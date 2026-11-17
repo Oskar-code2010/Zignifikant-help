@@ -54,7 +54,10 @@ export function BulkConfirmDialog({
   async function onConfirm() {
     setPending(true);
     try {
-      const res = await apiFetch<{ confirmed: number }>(`/api/clients/${clientId}/matches/bulk-confirm`, { method: "POST" });
+      const res = await apiFetch<{ confirmed: number }>(
+        `/api/clients/${clientId}/matches/bulk-confirm`,
+        { method: "POST" },
+      );
       toast.success(`${res.confirmed} match bekræftet.`);
       onOpenChange(false);
       setPreview(null);
@@ -71,16 +74,21 @@ export function BulkConfirmDialog({
       <DialogContent onOpenAutoFocus={() => void load()}>
         <DialogHeader>
           <DialogTitle>Bekræft alle med høj sikkerhed</DialogTitle>
-          <DialogDescription>Alle forslag med score 85 eller mere og et kontoforslag bliver bekræftet og bogført i kladden.</DialogDescription>
+          <DialogDescription>
+            Alle forslag med score 85 eller mere og et kontoforslag bliver bekræftet og bogført i
+            kladden.
+          </DialogDescription>
         </DialogHeader>
         {preview ? (
           <div className="flex flex-col gap-2 text-sm" data-testid="bulk-preview">
             <p>
-              <strong>{preview.count}</strong> match for i alt <strong className="tabular">{formatDKK(preview.totalOre)}</strong> bliver bekræftet.
+              <strong>{preview.count}</strong> match for i alt{" "}
+              <strong className="tabular">{formatDKK(preview.totalOre)}</strong> bliver bekræftet.
             </p>
             {preview.skippedWithoutAccount > 0 ? (
               <p className="text-warning">
-                {preview.skippedWithoutAccount} forslag uden kontoforslag springes over – de skal bekræftes enkeltvis.
+                {preview.skippedWithoutAccount} forslag uden kontoforslag springes over – de skal
+                bekræftes enkeltvis.
               </p>
             ) : null}
           </div>
@@ -91,7 +99,11 @@ export function BulkConfirmDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Annuller
           </Button>
-          <Button variant="success" onClick={() => void onConfirm()} disabled={!preview || preview.count === 0 || pending}>
+          <Button
+            variant="success"
+            onClick={() => void onConfirm()}
+            disabled={!preview || preview.count === 0 || pending}
+          >
             {pending ? "Bekræfter…" : `Bekræft ${preview?.count ?? ""}`}
           </Button>
         </DialogFooter>

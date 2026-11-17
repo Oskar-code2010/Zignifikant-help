@@ -35,5 +35,8 @@ export const POST = authed<P>(async (ctx, req, { clientId }) => {
       message: `Filen er allerede uploadet som "${document.originalFilename}".`,
     });
   }
-  return NextResponse.json({ duplicate: false, document: { id: document.id, status: document.status } }, { status: 201 });
+  return NextResponse.json(
+    { duplicate: false, document: { id: document.id, status: document.status } },
+    { status: 201 },
+  );
 });

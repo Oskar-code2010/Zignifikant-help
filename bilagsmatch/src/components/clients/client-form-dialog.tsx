@@ -59,7 +59,10 @@ export function ClientFormDialog({
         await apiFetch(`/api/clients/${initial.id}`, { method: "PATCH", json: payload });
         toast.success("Klienten er opdateret.");
       } else {
-        const res = await apiFetch<{ client: { id: string } }>("/api/clients", { method: "POST", json: payload });
+        const res = await apiFetch<{ client: { id: string } }>("/api/clients", {
+          method: "POST",
+          json: payload,
+        });
         toast.success("Klienten er oprettet.");
         router.push(`/klienter/${res.client.id}/bilag`);
       }
@@ -78,12 +81,20 @@ export function ClientFormDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{editing ? "Rediger klient" : "Opret klient"}</DialogTitle>
-          <DialogDescription>Klienten er den virksomhed, du fører bogholderi for.</DialogDescription>
+          <DialogDescription>
+            Klienten er den virksomhed, du fører bogholderi for.
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="client-name">Navn</Label>
-            <Input id="client-name" name="name" required defaultValue={initial?.name} maxLength={200} />
+            <Input
+              id="client-name"
+              name="name"
+              required
+              defaultValue={initial?.name}
+              maxLength={200}
+            />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="client-cvr">CVR-nummer</Label>

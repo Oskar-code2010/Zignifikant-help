@@ -25,7 +25,12 @@ export function OrganizationNameForm({ name, canEdit }: { name: string; canEdit:
     <form onSubmit={save} className="flex items-end gap-3">
       <div className="flex flex-1 flex-col gap-1">
         <Label htmlFor="org-name">Navn</Label>
-        <Input id="org-name" value={value} onChange={(e) => setValue(e.target.value)} disabled={!canEdit} />
+        <Input
+          id="org-name"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          disabled={!canEdit}
+        />
       </div>
       <Button type="submit" disabled={!canEdit || value.trim() === name}>
         <Save aria-hidden /> Gem
@@ -45,7 +50,12 @@ export function CreateUserForm() {
     try {
       await apiFetch("/api/users", {
         method: "POST",
-        json: { name: f.get("name"), email: f.get("email"), password: f.get("password"), role: f.get("role") },
+        json: {
+          name: f.get("name"),
+          email: f.get("email"),
+          password: f.get("password"),
+          role: f.get("role"),
+        },
       });
       toast.success("Brugeren er oprettet. Giv personen e-mail og adgangskode.");
       form.reset();
@@ -68,7 +78,14 @@ export function CreateUserForm() {
       </div>
       <div className="flex flex-col gap-1">
         <Label htmlFor="user-password">Midlertidig adgangskode</Label>
-        <Input id="user-password" name="password" type="password" minLength={8} required autoComplete="new-password" />
+        <Input
+          id="user-password"
+          name="password"
+          type="password"
+          minLength={8}
+          required
+          autoComplete="new-password"
+        />
       </div>
       <div className="flex flex-col gap-1">
         <Label htmlFor="user-role">Rolle</Label>

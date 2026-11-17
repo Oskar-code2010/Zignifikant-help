@@ -4,12 +4,16 @@ import { expect, test } from "@playwright/test";
 import { login, trackConsole } from "./helpers";
 
 const DEMO = path.resolve(__dirname, "..", "..", "storage", "demo-files", "nordlys");
-const PDFS = ["gls-faktura-90881234.pdf", "dao-faktura-771203.pdf", "postnord-faktura-2026-09.pdf"].map((f) =>
-  path.join(DEMO, "bilag", f),
-);
+const PDFS = [
+  "gls-faktura-90881234.pdf",
+  "dao-faktura-771203.pdf",
+  "postnord-faktura-2026-09.pdf",
+].map((f) => path.join(DEMO, "bilag", f));
 const BANK_CSV = path.join(DEMO, "nordlys-danske-bank-sep-okt-2026.csv");
 
-test("full flow: client → upload → extract → bank import → match → confirm → bulk confirm → export", async ({ page }) => {
+test("full flow: client → upload → extract → bank import → match → confirm → bulk confirm → export", async ({
+  page,
+}) => {
   const assertClean = trackConsole(page);
   await login(page);
 
@@ -120,7 +124,10 @@ test("reject a suggestion and match manually", async ({ page }) => {
   await expect(page.getByTestId("review-stats")).toContainText("9 forslag");
 
   // Go back to the rejected transaction and match it manually
-  await page.getByRole("list", { name: "Åbne posteringer" }).getByRole("button", { name: text }).click();
+  await page
+    .getByRole("list", { name: "Åbne posteringer" })
+    .getByRole("button", { name: text })
+    .click();
   await expect(page.getByText("Intet bilagsforslag til denne postering")).toBeVisible();
   await page.locator("body").press("m");
   const dialog = page.getByRole("dialog");
@@ -131,17 +138,24 @@ test("reject a suggestion and match manually", async ({ page }) => {
   await expect(dialog.getByLabel("Konto")).not.toHaveValue("");
   await dialog.getByRole("button", { name: "Match og bekræft" }).click();
   await expect(page.getByText("Manuelt match gemt og bogført i kladden.")).toBeVisible();
-  await expect(page.getByRole("list", { name: "Åbne posteringer" }).getByRole("button", { name: text })).toHaveCount(0);
+  await expect(
+    page.getByRole("list", { name: "Åbne posteringer" }).getByRole("button", { name: text }),
+  ).toHaveCount(0);
 
   // Ignore an internal transfer
-  await page.getByRole("list", { name: "Åbne posteringer" }).getByRole("button", { name: /Overførsel til skattekonto/ }).click();
+  await page
+    .getByRole("list", { name: "Åbne posteringer" })
+    .getByRole("button", { name: /Overførsel til skattekonto/ })
+    .click();
   await page.getByRole("button", { name: "Ignorer" }).click();
   await expect(page.getByText("Posteringen ignoreres.")).toBeVisible();
 
   // Mangler bilag shows the Netto purchase and an email draft
   await page.getByRole("link", { name: "Mangler bilag" }).click();
   await expect(page.getByTestId("missing-table")).toContainText("Dankort-køb Netto Aarhus C");
-  await expect(page.getByTestId("missing-email")).toContainText("Emne: Manglende bilag – Kaffekompagniet IVS");
+  await expect(page.getByTestId("missing-email")).toContainText(
+    "Emne: Manglende bilag – Kaffekompagniet IVS",
+  );
 
   // The learned rule shows up on the Regler page
   await page.getByRole("link", { name: "Regler" }).click();
@@ -157,14 +171,18 @@ test("org pages render: dashboard, kontoplan, indstillinger, document viewer", a
   await expect(page.getByTestId("dashboard-table")).toContainText("Nordlys Webshop ApS");
   await page.getByRole("link", { name: "Kontoplan" }).click();
   await expect(page.getByRole("cell", { name: "3610" })).toBeVisible();
-  await expect(page.getByLabel("Navn på momskode IEUY")).toHaveValue("EU-køb af ydelser (omvendt betalingspligt)");
+  await expect(page.getByLabel("Navn på momskode IEUY")).toHaveValue(
+    "EU-køb af ydelser (omvendt betalingspligt)",
+  );
   await page.getByRole("link", { name: "Indstillinger" }).click();
   await expect(page.getByTestId("ai-status")).toContainText("Demo-tilstand");
 
   await page.getByRole("link", { name: "Klienter" }).click();
   await page.getByRole("link", { name: "Nordlys Webshop ApS" }).click();
   await page.getByRole("link", { name: "emballagehuset-faktura-2026-118.pdf" }).click();
-  await expect(page.getByLabel("Leverandør", { exact: true })).toHaveValue("Emballagehuset Vest A/S");
+  await expect(page.getByLabel("Leverandør", { exact: true })).toHaveValue(
+    "Emballagehuset Vest A/S",
+  );
   await expect(page.getByLabel("Total inkl. moms")).toHaveValue("3781,25");
   await expect(page.locator("iframe[title^='Forhåndsvisning']")).toBeVisible();
   assertClean();

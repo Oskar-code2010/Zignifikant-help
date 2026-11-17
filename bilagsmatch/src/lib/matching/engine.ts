@@ -45,7 +45,15 @@ export interface Candidate {
 export const HIGH_CONFIDENCE = 85;
 export const SUGGEST_THRESHOLD = 60;
 
-export const POINTS = { amountExact: 55, amountRounding: 50, amountForeign: 40, amountForeignExact: 55, dateMax: 25, textMax: 15, invoiceNumber: 15 } as const;
+export const POINTS = {
+  amountExact: 55,
+  amountRounding: 50,
+  amountForeign: 40,
+  amountForeignExact: 55,
+  dateMax: 25,
+  textMax: 15,
+  invoiceNumber: 15,
+} as const;
 
 /** DKK per 100 units of foreign currency, approximate reference rates (DKK is pegged to EUR). */
 export const APPROX_DKK_RATES: Record<string, number> = {
@@ -91,14 +99,21 @@ function foreignAmountInText(amountMinor: number, currency: string, text: string
   return t.includes(currency) && variants.some((v) => t.includes(v));
 }
 
-function scoreAmount(doc: MatchDocument, tx: MatchTransaction): { points: number; reason: string } | null {
+function scoreAmount(
+  doc: MatchDocument,
+  tx: MatchTransaction,
+): { points: number; reason: string } | null {
   const total = Math.abs(doc.totalAmountOre ?? 0);
   const bank = Math.abs(tx.amountOre);
   if (isDkk(doc.currency)) {
     const diff = Math.abs(bank - total);
-    if (diff === 0) return { points: POINTS.amountExact, reason: `Beløb matcher præcist (${formatDKK(bank)})` };
+    if (diff === 0)
+      return { points: POINTS.amountExact, reason: `Beløb matcher præcist (${formatDKK(bank)})` };
     if (diff <= ROUNDING_TOLERANCE_ORE) {
-      return { points: POINTS.amountRounding, reason: `Beløb matcher inden for afrunding (afvigelse ${formatDKK(diff)})` };
+      return {
+        points: POINTS.amountRounding,
+        reason: `Beløb matcher inden for afrunding (afvigelse ${formatDKK(diff)})`,
+      };
     }
     return null;
   }
@@ -134,7 +149,10 @@ function dayWord(n: number): string {
   return n === 1 ? "dag" : "dage";
 }
 
-function scoreDate(doc: MatchDocument, tx: MatchTransaction): { points: number; reason: string; distance: number } | null {
+function scoreDate(
+  doc: MatchDocument,
+  tx: MatchTransaction,
+): { points: number; reason: string; distance: number } | null {
   if (!doc.invoiceDate) return null;
   const dInv = daysBetween(doc.invoiceDate, tx.bookingDate);
   const dDue = doc.dueDate ? daysBetween(doc.dueDate, tx.bookingDate) : null;
@@ -162,16 +180,25 @@ function scoreDate(doc: MatchDocument, tx: MatchTransaction): { points: number; 
   return { points: invPoints, reason, distance };
 }
 
-function scoreText(doc: MatchDocument, tx: MatchTransaction): { points: number; reason: string | null } {
+function scoreText(
+  doc: MatchDocument,
+  tx: MatchTransaction,
+): { points: number; reason: string | null } {
   if (doc.supplierCvr && compact(tx.text).includes(compact(doc.supplierCvr))) {
-    return { points: POINTS.textMax, reason: `Leverandørens CVR-nummer ${doc.supplierCvr} står i bankteksten` };
+    return {
+      points: POINTS.textMax,
+      reason: `Leverandørens CVR-nummer ${doc.supplierCvr} står i bankteksten`,
+    };
   }
   if (!doc.supplierName) return { points: 0, reason: null };
   const sim = supplierSimilarity(doc.supplierName, tx.text);
   const pct = Math.round(sim * 100);
-  if (sim >= 0.85) return { points: POINTS.textMax, reason: `Leverandørnavn ligner banktekst (${pct}%)` };
-  if (sim >= 0.7) return { points: 10, reason: `Leverandørnavn ligner delvist banktekst (${pct}%)` };
-  if (sim >= 0.55) return { points: 5, reason: `Svag lighed mellem leverandørnavn og banktekst (${pct}%)` };
+  if (sim >= 0.85)
+    return { points: POINTS.textMax, reason: `Leverandørnavn ligner banktekst (${pct}%)` };
+  if (sim >= 0.7)
+    return { points: 10, reason: `Leverandørnavn ligner delvist banktekst (${pct}%)` };
+  if (sim >= 0.55)
+    return { points: 5, reason: `Svag lighed mellem leverandørnavn og banktekst (${pct}%)` };
   return { points: 0, reason: `Leverandørnavn ses ikke i bankteksten (${pct}%)` };
 }
 
@@ -234,7 +261,11 @@ export function generateCandidates(docs: MatchDocument[], txs: MatchTransaction[
     if (isDkk(doc.currency)) {
       const total = Math.abs(doc.totalAmountOre);
       pool = [];
-      for (let i = lowerBound(total - ROUNDING_TOLERANCE_ORE); i < sorted.length && absAmounts[i]! <= total + ROUNDING_TOLERANCE_ORE; i++) {
+      for (
+        let i = lowerBound(total - ROUNDING_TOLERANCE_ORE);
+        i < sorted.length && absAmounts[i]! <= total + ROUNDING_TOLERANCE_ORE;
+        i++
+      ) {
         pool.push(sorted[i]!);
       }
     } else {
@@ -276,12 +307,19 @@ export function assignMatches(candidates: Candidate[], threshold = SUGGEST_THRES
 }
 
 /** Convenience: candidates + assignment. */
-export function matchAll(docs: MatchDocument[], txs: MatchTransaction[], threshold = SUGGEST_THRESHOLD): Candidate[] {
+export function matchAll(
+  docs: MatchDocument[],
+  txs: MatchTransaction[],
+  threshold = SUGGEST_THRESHOLD,
+): Candidate[] {
   return assignMatches(generateCandidates(docs, txs), threshold);
 }
 
 /** Ranked candidates for one transaction (manual matching search). */
-export function rankDocumentsForTransaction(tx: MatchTransaction, docs: MatchDocument[]): Candidate[] {
+export function rankDocumentsForTransaction(
+  tx: MatchTransaction,
+  docs: MatchDocument[],
+): Candidate[] {
   return docs
     .map((d) => scorePair(d, tx))
     .filter((c): c is Candidate => c !== null)

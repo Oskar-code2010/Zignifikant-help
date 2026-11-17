@@ -43,7 +43,9 @@ describe("clients API", () => {
     });
     expect(res.status).toBe(201);
     const list = await call(clientsRoute.GET);
-    const names = (list.json as { clients: { name: string; cvr: string }[] }).clients.map((c) => c.name);
+    const names = (list.json as { clients: { name: string; cvr: string }[] }).clients.map(
+      (c) => c.name,
+    );
     expect(names).toEqual(["A Shop ApS"]);
   });
 
@@ -51,8 +53,13 @@ describe("clients API", () => {
     actAs(a.user.id);
     expect((await call(clientRoute.GET, { params: { clientId: clientB } })).status).toBe(404);
     expect(
-      (await call(clientRoute.PATCH, { method: "PATCH", params: { clientId: clientB }, body: { name: "hacked" } }))
-        .status,
+      (
+        await call(clientRoute.PATCH, {
+          method: "PATCH",
+          params: { clientId: clientB },
+          body: { name: "hacked" },
+        })
+      ).status,
     ).toBe(404);
     expect(
       (
@@ -95,14 +102,16 @@ describe("forOrg scoped client", () => {
 
   it("refuses explicit cross-org filters", async () => {
     const dbA = forOrg(a.org.id);
-    await expect(dbA.client.findMany({ where: { organizationId: b.org.id } })).rejects.toBeInstanceOf(
-      TenantViolationError,
-    );
+    await expect(
+      dbA.client.findMany({ where: { organizationId: b.org.id } }),
+    ).rejects.toBeInstanceOf(TenantViolationError);
   });
 
   it("scopes updateMany/deleteMany", async () => {
     const dbA = forOrg(a.org.id);
-    expect((await dbA.client.updateMany({ where: { id: clientB }, data: { notes: "x" } })).count).toBe(0);
+    expect(
+      (await dbA.client.updateMany({ where: { id: clientB }, data: { notes: "x" } })).count,
+    ).toBe(0);
     expect((await dbA.client.deleteMany({ where: { id: clientB } })).count).toBe(0);
   });
 

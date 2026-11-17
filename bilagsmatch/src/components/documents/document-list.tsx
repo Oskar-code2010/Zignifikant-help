@@ -53,7 +53,8 @@ export function DocumentList({ clientId, initial }: { clientId: string; initial:
       <DocumentUploader clientId={clientId} onUploaded={() => void refresh()} />
       {docs.length === 0 ? (
         <EmptyState title="Ingen bilag endnu" icon={<FileText className="h-8 w-8" />}>
-          Upload fakturaer og kvitteringer ovenfor. De bliver aflæst automatisk, så du kan afstemme dem mod banken.
+          Upload fakturaer og kvitteringer ovenfor. De bliver aflæst automatisk, så du kan afstemme
+          dem mod banken.
         </EmptyState>
       ) : (
         <Card>
@@ -72,7 +73,10 @@ export function DocumentList({ clientId, initial }: { clientId: string; initial:
               {docs.map((d) => (
                 <TR key={d.id} className="hover:bg-muted/50">
                   <TD className="max-w-xs">
-                    <Link href={`/klienter/${clientId}/bilag/${d.id}`} className="block truncate font-medium text-primary hover:underline">
+                    <Link
+                      href={`/klienter/${clientId}/bilag/${d.id}`}
+                      className="block truncate font-medium text-primary hover:underline"
+                    >
                       {d.originalFilename}
                     </Link>
                     {d.status === "FAILED" && d.errorMessage ? (
@@ -80,7 +84,9 @@ export function DocumentList({ clientId, initial }: { clientId: string; initial:
                     ) : null}
                   </TD>
                   <TD>{d.supplierName ?? <span className="text-muted-foreground">–</span>}</TD>
-                  <TD className="tabular">{d.invoiceDate ? formatDate(new Date(d.invoiceDate)) : "–"}</TD>
+                  <TD className="tabular">
+                    {d.invoiceDate ? formatDate(new Date(d.invoiceDate)) : "–"}
+                  </TD>
                   <TD className="tabular whitespace-nowrap text-right">
                     {d.totalAmountOre === null
                       ? "–"

@@ -35,7 +35,9 @@ const fmtDate = (iso: string | null) => (iso ? formatDate(new Date(iso)) : "–"
 
 function docAmount(ore: number | null, currency: string | null) {
   if (ore === null) return "–";
-  return currency && currency !== "DKK" ? `${formatDKK(ore).replace(" kr.", "")} ${currency}` : formatDKK(ore);
+  return currency && currency !== "DKK"
+    ? `${formatDKK(ore).replace(" kr.", "")} ${currency}`
+    : formatDKK(ore);
 }
 
 function isTyping(target: EventTarget | null): boolean {
@@ -67,8 +69,13 @@ export function ReviewScreen({
   const current: ReviewItem | undefined = items[safeIndex];
   const suggestion = current?.match
     ? { account: current.match.suggestedAccount ?? "", vat: current.match.suggestedVatCode ?? "" }
-    : { account: current?.fallbackSuggestion?.accountNumber ?? "", vat: current?.fallbackSuggestion?.vatCode ?? "" };
-  const choice = current ? (choices[current.transaction.id] ?? suggestion) : { account: "", vat: "" };
+    : {
+        account: current?.fallbackSuggestion?.accountNumber ?? "",
+        vat: current?.fallbackSuggestion?.vatCode ?? "",
+      };
+  const choice = current
+    ? (choices[current.transaction.id] ?? suggestion)
+    : { account: "", vat: "" };
 
   const suggestedCount = items.filter((i) => i.match).length;
   const highCount = items.filter((i) => i.match && i.match.score >= HIGH).length;
@@ -145,22 +152,33 @@ export function ReviewScreen({
       if (current.match) {
         await apiFetch(`/api/matches/${current.match.id}/reject`, { method: "POST" });
       }
-      await apiFetch(`/api/transactions/${current.transaction.id}/state`, { method: "POST", json: { action } });
-      toast.success(action === "IGNORE" ? "Posteringen ignoreres." : "Markeret som 'Mangler bilag'.");
+      await apiFetch(`/api/transactions/${current.transaction.id}/state`, {
+        method: "POST",
+        json: { action },
+      });
+      toast.success(
+        action === "IGNORE" ? "Posteringen ignoreres." : "Markeret som 'Mangler bilag'.",
+      );
       removeCurrent();
     });
 
   const runMatching = () =>
     run(async () => {
-      const res = await apiFetch<{ suggested: number; highConfidence: number }>(`/api/clients/${clientId}/matching/run`, {
-        method: "POST",
-      });
+      const res = await apiFetch<{ suggested: number; highConfidence: number }>(
+        `/api/clients/${clientId}/matching/run`,
+        {
+          method: "POST",
+        },
+      );
       await refresh();
       setIndex(0);
-      toast.success(`Afstemning kørt: ${res.suggested} forslag, heraf ${res.highConfidence} med høj sikkerhed.`);
+      toast.success(
+        `Afstemning kørt: ${res.suggested} forslag, heraf ${res.highConfidence} med høj sikkerhed.`,
+      );
     });
 
-  const move = (delta: number) => setIndex(Math.max(0, Math.min(items.length - 1, safeIndex + delta)));
+  const move = (delta: number) =>
+    setIndex(Math.max(0, Math.min(items.length - 1, safeIndex + delta)));
 
   const keyHandler = useRef<(e: KeyboardEvent) => void>(() => {});
   useEffect(() => {
@@ -214,14 +232,23 @@ export function ReviewScreen({
       <Button onClick={() => void runMatching()} disabled={busy} data-testid="run-matching">
         <Play aria-hidden /> Kør afstemning
       </Button>
-      <Button variant="success" onClick={() => setBulkOpen(true)} disabled={busy || highCount === 0}>
+      <Button
+        variant="success"
+        onClick={() => setBulkOpen(true)}
+        disabled={busy || highCount === 0}
+      >
         <ShieldCheck aria-hidden /> Bekræft alle med høj sikkerhed ({highCount})
       </Button>
       <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
         <span data-testid="review-stats">
           {items.length} åbne · {suggestedCount} forslag · {highCount} høj sikkerhed
         </span>
-        <Button variant="ghost" size="sm" onClick={() => setHelpOpen(true)} aria-label="Vis tastaturgenveje">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setHelpOpen(true)}
+          aria-label="Vis tastaturgenveje"
+        >
           <Keyboard aria-hidden /> <kbd>?</kbd>
         </Button>
       </div>
@@ -263,7 +290,8 @@ export function ReviewScreen({
       <div className="flex flex-col gap-4">
         {toolbar}
         <EmptyState title="Alt er afstemt" icon={<Check className="h-8 w-8" />}>
-          Der er ingen åbne bankposteringer. Importér et nyt bankudtog eller upload flere bilag, og kør afstemningen igen.
+          Der er ingen åbne bankposteringer. Importér et nyt bankudtog eller upload flere bilag, og
+          kør afstemningen igen.
         </EmptyState>
         {dialogs}
       </div>
@@ -282,13 +310,30 @@ export function ReviewScreen({
           <div className="border-b border-border p-4" data-testid="current-transaction">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Bankpostering</p>
             <p className="mt-1 font-medium">{t.text}</p>
-            <p className={cn("tabular mt-1 text-xl font-semibold", t.amountOre > 0 && "text-success")}>{formatDKK(t.amountOre)}</p>
+            <p
+              className={cn(
+                "tabular mt-1 text-xl font-semibold",
+                t.amountOre > 0 && "text-success",
+              )}
+            >
+              {formatDKK(t.amountOre)}
+            </p>
             <p className="tabular text-sm text-muted-foreground">{fmtDate(t.bookingDate)}</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <Button size="sm" variant="outline" onClick={() => void setState("IGNORE")} disabled={busy}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => void setState("IGNORE")}
+                disabled={busy}
+              >
                 <Ban aria-hidden /> Ignorer
               </Button>
-              <Button size="sm" variant="outline" onClick={() => void setState("MISSING_RECEIPT")} disabled={busy}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => void setState("MISSING_RECEIPT")}
+                disabled={busy}
+              >
                 <FileQuestion aria-hidden /> Mangler bilag
               </Button>
             </div>
@@ -298,15 +343,31 @@ export function ReviewScreen({
               {safeIndex + 1} af {items.length}
             </span>
             <span className="flex gap-1">
-              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => move(-1)} aria-label="Forrige (K)">
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7"
+                onClick={() => move(-1)}
+                aria-label="Forrige (K)"
+              >
                 <ChevronUp aria-hidden />
               </Button>
-              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => move(1)} aria-label="Næste (J)">
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7"
+                onClick={() => move(1)}
+                aria-label="Næste (J)"
+              >
                 <ChevronDown aria-hidden />
               </Button>
             </span>
           </div>
-          <ol ref={listRef} className="flex-1 overflow-y-auto px-2 pb-2" aria-label="Åbne posteringer">
+          <ol
+            ref={listRef}
+            className="flex-1 overflow-y-auto px-2 pb-2"
+            aria-label="Åbne posteringer"
+          >
             {items.map((it, i) => (
               <li key={it.transaction.id} data-index={i}>
                 <button
@@ -321,12 +382,18 @@ export function ReviewScreen({
                   <span
                     className={cn(
                       "h-2 w-2 shrink-0 rounded-full",
-                      it.match ? (it.match.score >= HIGH ? "bg-success" : "bg-warning") : "bg-input",
+                      it.match
+                        ? it.match.score >= HIGH
+                          ? "bg-success"
+                          : "bg-warning"
+                        : "bg-input",
                     )}
                     aria-hidden
                   />
                   <span className="min-w-0 flex-1 truncate">{it.transaction.text}</span>
-                  <span className="tabular shrink-0 text-xs text-muted-foreground">{formatDKK(it.transaction.amountOre)}</span>
+                  <span className="tabular shrink-0 text-xs text-muted-foreground">
+                    {formatDKK(it.transaction.amountOre)}
+                  </span>
                 </button>
               </li>
             ))}
@@ -336,14 +403,19 @@ export function ReviewScreen({
         {/* Middle: document preview */}
         <Card className="min-h-[60vh] p-3">
           {m ? (
-            <DocumentPreview id={m.document.id} mimeType={m.document.mimeType} title={m.document.originalFilename} />
+            <DocumentPreview
+              id={m.document.id}
+              mimeType={m.document.mimeType}
+              title={m.document.originalFilename}
+            />
           ) : (
             <div className="flex h-full min-h-[50vh] flex-col items-center justify-center gap-3 text-center text-muted-foreground">
               <FileQuestion className="h-10 w-10" aria-hidden />
               <p className="font-medium text-foreground">Intet bilagsforslag til denne postering</p>
               <p className="max-w-sm text-sm">
-                Søg efter et bilag manuelt (<kbd>M</kbd>), markér den som <em>Mangler bilag</em> (<kbd>B</kbd>), eller
-                ignorer den, hvis det fx er en intern overførsel (<kbd>I</kbd>).
+                Søg efter et bilag manuelt (<kbd>M</kbd>), markér den som <em>Mangler bilag</em> (
+                <kbd>B</kbd>), eller ignorer den, hvis det fx er en intern overførsel (<kbd>I</kbd>
+                ).
               </p>
               <Button variant="outline" onClick={() => setManualOpen(true)}>
                 <Search aria-hidden /> Find bilag manuelt
@@ -353,11 +425,17 @@ export function ReviewScreen({
         </Card>
 
         {/* Right: data, reasons, account/VAT, actions */}
-        <Card className="flex flex-col gap-4 p-4 lg:col-span-2 xl:col-span-1" data-testid="decision-panel">
+        <Card
+          className="flex flex-col gap-4 p-4 lg:col-span-2 xl:col-span-1"
+          data-testid="decision-panel"
+        >
           {m ? (
             <>
               <div className="flex items-center justify-between gap-2">
-                <Badge variant={m.score >= HIGH ? "success" : "warning"} data-testid="confidence-badge">
+                <Badge
+                  variant={m.score >= HIGH ? "success" : "warning"}
+                  data-testid="confidence-badge"
+                >
                   {m.score >= HIGH ? "Høj sikkerhed" : "Tjek venligst"} · {m.score}
                 </Badge>
                 {m.document.isCreditNote ? <Badge variant="default">Kreditnota</Badge> : null}
@@ -374,13 +452,21 @@ export function ReviewScreen({
                 <dt className="text-muted-foreground">Forfald</dt>
                 <dd className="tabular">{fmtDate(m.document.dueDate)}</dd>
                 <dt className="text-muted-foreground">Total</dt>
-                <dd className="tabular font-medium">{docAmount(m.document.totalAmountOre, m.document.currency)}</dd>
+                <dd className="tabular font-medium">
+                  {docAmount(m.document.totalAmountOre, m.document.currency)}
+                </dd>
                 <dt className="text-muted-foreground">Moms</dt>
-                <dd className="tabular">{docAmount(m.document.vatAmountOre, m.document.currency)}</dd>
+                <dd className="tabular">
+                  {docAmount(m.document.vatAmountOre, m.document.currency)}
+                </dd>
               </dl>
-              {m.document.description ? <p className="text-sm text-muted-foreground">{m.document.description}</p> : null}
+              {m.document.description ? (
+                <p className="text-sm text-muted-foreground">{m.document.description}</p>
+              ) : null}
               <div>
-                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Hvorfor dette match?</p>
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Hvorfor dette match?
+                </p>
                 <ul className="flex flex-col gap-1 text-sm" data-testid="match-reasons">
                   {m.reasons.map((r) => (
                     <li key={r} className="flex gap-2">
@@ -398,7 +484,9 @@ export function ReviewScreen({
               </div>
             </>
           ) : (
-            <p className="text-sm text-muted-foreground">Vælg et bilag manuelt for at kunne bekræfte denne postering.</p>
+            <p className="text-sm text-muted-foreground">
+              Vælg et bilag manuelt for at kunne bekræfte denne postering.
+            </p>
           )}
 
           <div className="flex flex-col gap-3 border-t border-border pt-3">
@@ -406,7 +494,11 @@ export function ReviewScreen({
               <Label htmlFor="review-account">
                 Konto <kbd>E</kbd>
               </Label>
-              <Select id="review-account" value={choice.account} onChange={(e) => setChoice({ account: e.target.value })}>
+              <Select
+                id="review-account"
+                value={choice.account}
+                onChange={(e) => setChoice({ account: e.target.value })}
+              >
                 <option value="">– vælg konto –</option>
                 {accounts.map((a) => (
                   <option key={a.number} value={a.number}>
@@ -417,7 +509,11 @@ export function ReviewScreen({
             </div>
             <div className="flex flex-col gap-1">
               <Label htmlFor="review-vat">Momskode</Label>
-              <Select id="review-vat" value={choice.vat} onChange={(e) => setChoice({ vat: e.target.value })}>
+              <Select
+                id="review-vat"
+                value={choice.vat}
+                onChange={(e) => setChoice({ vat: e.target.value })}
+              >
                 <option value="">– vælg momskode –</option>
                 {vatCodes.map((v) => (
                   <option key={v.code} value={v.code}>
@@ -426,17 +522,24 @@ export function ReviewScreen({
                 ))}
               </Select>
             </div>
-            {m?.suggestionSource ?? current.fallbackSuggestion?.explanation ? (
+            {(m?.suggestionSource ?? current.fallbackSuggestion?.explanation) ? (
               <p className="text-xs text-muted-foreground" data-testid="suggestion-source">
                 {m?.suggestionSource ?? current.fallbackSuggestion?.explanation}
               </p>
             ) : (
-              <p className="text-xs text-muted-foreground">Intet kontoforslag – vælg selv. Valget huskes til næste gang.</p>
+              <p className="text-xs text-muted-foreground">
+                Intet kontoforslag – vælg selv. Valget huskes til næste gang.
+              </p>
             )}
           </div>
 
           <div className="mt-auto flex flex-wrap gap-2">
-            <Button variant="success" onClick={() => void confirm()} disabled={busy || !m} className="flex-1">
+            <Button
+              variant="success"
+              onClick={() => void confirm()}
+              disabled={busy || !m}
+              className="flex-1"
+            >
               <Check aria-hidden /> Bekræft <kbd className="bg-transparent text-white">Enter</kbd>
             </Button>
             <Button variant="outline" onClick={() => void reject()} disabled={busy || !m}>

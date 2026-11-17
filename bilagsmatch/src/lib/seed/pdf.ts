@@ -12,7 +12,9 @@ export interface Buyer {
 const FIXED_DATE = new Date(Date.UTC(2026, 9, 31, 12, 0, 0));
 
 function money(ore: number, currency: string): string {
-  return currency === "DKK" ? `${formatDanishNumber(ore)} kr.` : `${currency} ${formatDanishNumber(ore)}`;
+  return currency === "DKK"
+    ? `${formatDanishNumber(ore)} kr.`
+    : `${currency} ${formatDanishNumber(ore)}`;
 }
 
 function iso(d: string | null): string {
@@ -38,7 +40,14 @@ export async function renderSamplePdf(doc: SampleDocument, buyer: Buyer): Promis
 
 type Totals = ReturnType<typeof totals>;
 
-function renderInvoice(page: PDFPage, doc: SampleDocument, buyer: Buyer, t: Totals, regular: PDFFont, bold: PDFFont) {
+function renderInvoice(
+  page: PDFPage,
+  doc: SampleDocument,
+  buyer: Buyer,
+  t: Totals,
+  regular: PDFFont,
+  bold: PDFFont,
+) {
   const ink = rgb(0.1, 0.12, 0.18);
   const muted = rgb(0.4, 0.43, 0.5);
   const accent = rgb(0.12, 0.23, 0.54);
@@ -50,7 +59,14 @@ function renderInvoice(page: PDFPage, doc: SampleDocument, buyer: Buyer, t: Tota
   page.drawRectangle({ x: 0, y: 802, width: 595, height: 40, color: accent });
   text(doc.supplierName, 40, 816, 16, bold, rgb(1, 1, 1));
   text(doc.supplierAddress, 40, 784, 9, regular, muted);
-  text(doc.supplierCvr ? `CVR-nr. ${doc.supplierCvr}` : `Momsnr. ${doc.supplierVatId ?? ""}`, 40, 771, 9, regular, muted);
+  text(
+    doc.supplierCvr ? `CVR-nr. ${doc.supplierCvr}` : `Momsnr. ${doc.supplierVatId ?? ""}`,
+    40,
+    771,
+    9,
+    regular,
+    muted,
+  );
 
   const title = doc.isCreditNote ? "KREDITNOTA" : "FAKTURA";
   right(title, 555, 760, 20, bold, accent);
@@ -86,7 +102,12 @@ function renderInvoice(page: PDFPage, doc: SampleDocument, buyer: Buyer, t: Tota
     right(formatDanishNumber(lineTotal), 549, y, 9);
     y -= 16;
   }
-  page.drawLine({ start: { x: 300, y: y + 4 }, end: { x: 555, y: y + 4 }, thickness: 0.5, color: muted });
+  page.drawLine({
+    start: { x: 300, y: y + 4 },
+    end: { x: 555, y: y + 4 },
+    thickness: 0.5,
+    color: muted,
+  });
   y -= 14;
   const vatLabel = doc.vatRate === 25 ? "Moms 25 %" : "Moms 0 %";
   const rows: [string, string, boolean][] = [
@@ -104,18 +125,43 @@ function renderInvoice(page: PDFPage, doc: SampleDocument, buyer: Buyer, t: Tota
     text(doc.note, 40, y - 20, 9, regular, muted);
   }
   const footerY = 80;
-  page.drawLine({ start: { x: 40, y: footerY + 18 }, end: { x: 555, y: footerY + 18 }, thickness: 0.5, color: muted });
+  page.drawLine({
+    start: { x: 40, y: footerY + 18 },
+    end: { x: 555, y: footerY + 18 },
+    thickness: 0.5,
+    color: muted,
+  });
   if (doc.isCreditNote) {
     text("Beløbet krediteres og udbetales til jeres bankkonto.", 40, footerY, 9, regular, muted);
   } else if (doc.currency === "DKK" && doc.supplierCvr) {
-    text(`Betales senest ${iso(doc.dueDate ?? doc.invoiceDate)} til reg.nr. 9070 kontonr. 1234567. Angiv fakturanr. ${doc.invoiceNumber}.`, 40, footerY, 9, regular, muted);
+    text(
+      `Betales senest ${iso(doc.dueDate ?? doc.invoiceDate)} til reg.nr. 9070 kontonr. 1234567. Angiv fakturanr. ${doc.invoiceNumber}.`,
+      40,
+      footerY,
+      9,
+      regular,
+      muted,
+    );
   } else {
     text("Betalt med kort. Tak for jeres køb.", 40, footerY, 9, regular, muted);
   }
-  text("Syntetisk demobilag genereret af Bilagsmatch – ikke en rigtig faktura.", 40, footerY - 14, 7, regular, muted);
+  text(
+    "Syntetisk demobilag genereret af Bilagsmatch – ikke en rigtig faktura.",
+    40,
+    footerY - 14,
+    7,
+    regular,
+    muted,
+  );
 }
 
-function renderReceipt(page: PDFPage, doc: SampleDocument, t: Totals, regular: PDFFont, bold: PDFFont) {
+function renderReceipt(
+  page: PDFPage,
+  doc: SampleDocument,
+  t: Totals,
+  regular: PDFFont,
+  bold: PDFFont,
+) {
   const ink = rgb(0.1, 0.1, 0.1);
   const center = (s: string, y: number, size = 9, font = regular) =>
     page.drawText(s, { x: (300 - font.widthOfTextAtSize(s, size)) / 2, y, size, font, color: ink });
@@ -140,7 +186,12 @@ function renderReceipt(page: PDFPage, doc: SampleDocument, t: Totals, regular: P
     y -= 14;
   }
   y -= 6;
-  page.drawLine({ start: { x: 20, y: y + 8 }, end: { x: 280, y: y + 8 }, thickness: 0.5, color: ink });
+  page.drawLine({
+    start: { x: 20, y: y + 8 },
+    end: { x: 280, y: y + 8 },
+    thickness: 0.5,
+    color: ink,
+  });
   row("I ALT DKK", formatDanishNumber(t.totalOre), y - 4, bold, 11);
   y -= 22;
   row("Heraf moms 25 %", formatDanishNumber(t.vatOre), y, regular, 8);

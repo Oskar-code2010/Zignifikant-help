@@ -9,4 +9,6 @@ export const GET = authed<P>(async (ctx, _req, { clientId }) => {
   return NextResponse.json(preview);
 });
 
-export const POST = authed<P>(async (ctx, _req, { clientId }) => NextResponse.json(await bulkConfirm(ctx, clientId)));
+export const POST = authed<P>(async (ctx, _req, { clientId }) =>
+  NextResponse.json(await bulkConfirm(ctx, clientId)),
+);

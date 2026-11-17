@@ -6,3 +6,4 @@ process.env.NEXTAUTH_SECRET = "test-secret-test-secret-test-secret";
 process.env.STORAGE_DIR = path.join(os.tmpdir(), "bilagsmatch-test-storage");
 process.env.ANTHROPIC_API_KEY = "";
 process.env.EXTRACTION_WORKER_ENABLED = "false";
+process.env.DEMO_FILES_DIR = path.join(os.tmpdir(), "bilagsmatch-test-demo-files");

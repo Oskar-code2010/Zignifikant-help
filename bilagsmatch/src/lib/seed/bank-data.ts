@@ -43,7 +43,11 @@ const NORDLYS: DemoTx[] = [
 ];
 
 const KAFFE: DemoTx[] = [
-  { date: "2026-09-18", text: "ROESTEREI HAMBURG GMBH EUR 1023,00 KURS 7,4612", amountOre: -763281 }, // EUR invoice
+  {
+    date: "2026-09-18",
+    text: "ROESTEREI HAMBURG GMBH EUR 1023,00 KURS 7,4612",
+    amountOre: -763281,
+  }, // EUR invoice
   { date: "2026-10-13", text: "BRING PARCELS A/S", amountOre: -144000 },
   { date: "2026-10-01", text: "STRIPE FEES", amountOre: -48765 },
   { date: "2026-09-14", text: "CANVA* 04381-22917", amountOre: -9900 }, // same amount as Dropbox
@@ -64,7 +68,13 @@ const KAFFE: DemoTx[] = [
 ];
 
 /** Regular incoming payouts (webshop sales) every few days, deterministic amounts. */
-function payouts(start: string, count: number, everyDays: number, label: string, base: number): DemoTx[] {
+function payouts(
+  start: string,
+  count: number,
+  everyDays: number,
+  label: string,
+  base: number,
+): DemoTx[] {
   const [y, m, d] = start.split("-").map(Number);
   const first = makeDate(y!, m!, d!)!;
   return Array.from({ length: count }, (_, i) => ({
@@ -87,7 +97,9 @@ export function demoTransactions(client: ClientKey): DemoTx[] {
           ...payouts("2026-09-02", 26, 2, "STRIPE PAYOUT", 180000),
           ...payouts("2026-09-04", 16, 4, "MobilePay MyShop udbetaling", 60000),
         ];
-  return rows.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : a.text < b.text ? -1 : 1));
+  return rows.sort((a, b) =>
+    a.date < b.date ? -1 : a.date > b.date ? 1 : a.text < b.text ? -1 : 1,
+  );
 }
 
 function withBalances(rows: DemoTx[], openingOre: number): { row: DemoTx; balance: number }[] {
@@ -108,7 +120,14 @@ export function danskeBankStyleCsv(rows: DemoTx[], openingOre: number): string {
   const lines = ['"Dato";"Tekst";"Beløb";"Saldo";"Status";"Afstemt"'];
   for (const { row, balance } of withBalances(rows, openingOre)) {
     lines.push(
-      [dmy(row.date).replace(/-/g, "."), row.text, formatDanishNumber(row.amountOre), formatDanishNumber(balance), "Udført", "Nej"]
+      [
+        dmy(row.date).replace(/-/g, "."),
+        row.text,
+        formatDanishNumber(row.amountOre),
+        formatDanishNumber(balance),
+        "Udført",
+        "Nej",
+      ]
         .map((v) => `"${v.replace(/"/g, '""')}"`)
         .join(";"),
     );
@@ -120,7 +139,18 @@ export function danskeBankStyleCsv(rows: DemoTx[], openingOre: number): string {
 export function nordeaStyleCsv(rows: DemoTx[], openingOre: number): string {
   const lines = ["Bogføringsdato;Beløb;Afsender;Modtager;Navn;Beskrivelse;Saldo;Valuta"];
   for (const { row, balance } of withBalances(rows, openingOre)) {
-    lines.push([row.date, formatExportAmount(row.amountOre), "", "", "", row.text, formatExportAmount(balance), "DKK"].join(";"));
+    lines.push(
+      [
+        row.date,
+        formatExportAmount(row.amountOre),
+        "",
+        "",
+        "",
+        row.text,
+        formatExportAmount(balance),
+        "DKK",
+      ].join(";"),
+    );
   }
   return "﻿" + lines.join("\n") + "\n";
 }
@@ -128,6 +158,12 @@ export function nordeaStyleCsv(rows: DemoTx[], openingOre: number): string {
 export function demoBankCsv(client: ClientKey): { filename: string; content: string } {
   const rows = demoTransactions(client);
   return client === "nordlys"
-    ? { filename: "nordlys-danske-bank-sep-okt-2026.csv", content: danskeBankStyleCsv(rows, 4520000) }
-    : { filename: "kaffekompagniet-nordea-sep-okt-2026.csv", content: nordeaStyleCsv(rows, 2875000) };
+    ? {
+        filename: "nordlys-danske-bank-sep-okt-2026.csv",
+        content: danskeBankStyleCsv(rows, 4520000),
+      }
+    : {
+        filename: "kaffekompagniet-nordea-sep-okt-2026.csv",
+        content: nordeaStyleCsv(rows, 2875000),
+      };
 }

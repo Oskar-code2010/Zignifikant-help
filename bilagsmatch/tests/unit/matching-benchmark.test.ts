@@ -13,7 +13,18 @@ function rng(seed: number) {
   };
 }
 
-const SUPPLIERS = ["GLS Denmark A/S", "PostNord Danmark A/S", "Google Ireland Limited", "Shopify International", "DAO A/S", "Emballagehuset Vest A/S", "Microsoft Ireland", "QuickPay ApS", "Bring Parcels A/S", "Kontorland"];
+const SUPPLIERS = [
+  "GLS Denmark A/S",
+  "PostNord Danmark A/S",
+  "Google Ireland Limited",
+  "Shopify International",
+  "DAO A/S",
+  "Emballagehuset Vest A/S",
+  "Microsoft Ireland",
+  "QuickPay ApS",
+  "Bring Parcels A/S",
+  "Kontorland",
+];
 
 describe("matching performance", () => {
   it("matches 500 transactions × 200 documents in under 2 seconds", () => {
@@ -37,11 +48,21 @@ describe("matching performance", () => {
         isCreditNote: false,
       });
       if (i < 170) {
-        txs.push({ id: `m${i}`, amountOre: -(i % 25 === 0 ? Math.round((total * 746) / 100) : total), bookingDate: addDays(date, Math.floor(r() * 20)), text: `${supplier.toUpperCase()} ${Math.floor(r() * 1e6)}` });
+        txs.push({
+          id: `m${i}`,
+          amountOre: -(i % 25 === 0 ? Math.round((total * 746) / 100) : total),
+          bookingDate: addDays(date, Math.floor(r() * 20)),
+          text: `${supplier.toUpperCase()} ${Math.floor(r() * 1e6)}`,
+        });
       }
     }
     while (txs.length < 500) {
-      txs.push({ id: `n${txs.length}`, amountOre: (r() < 0.5 ? -1 : 1) * (1000 + Math.floor(r() * 500000)), bookingDate: addDays(start, Math.floor(r() * 300)), text: `Diverse ${txs.length}` });
+      txs.push({
+        id: `n${txs.length}`,
+        amountOre: (r() < 0.5 ? -1 : 1) * (1000 + Math.floor(r() * 500000)),
+        bookingDate: addDays(start, Math.floor(r() * 300)),
+        text: `Diverse ${txs.length}`,
+      });
     }
     const t0 = performance.now();
     const result = matchAll(docs, txs);

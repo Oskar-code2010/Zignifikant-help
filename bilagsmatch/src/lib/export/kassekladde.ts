@@ -23,7 +23,11 @@ export interface ExportEntry {
   amountOre: number;
 }
 
-type Column = { header: string; value: (e: ExportEntry, counterAccount: string) => string; isText?: boolean };
+type Column = {
+  header: string;
+  value: (e: ExportEntry, counterAccount: string) => string;
+  isText?: boolean;
+};
 
 const date: Column["value"] = (e) => formatDate(e.date);
 const voucher: Column["value"] = (e) => String(e.voucherNumber);
@@ -74,17 +78,28 @@ export function csvField(value: string, isText = false): string {
   return /[;"]/.test(v) || /^\s|\s$/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
 }
 
-export function buildKassekladdeCsv(entries: ExportEntry[], preset: ExportPreset, counterAccount: string): string {
+export function buildKassekladdeCsv(
+  entries: ExportEntry[],
+  preset: ExportPreset,
+  counterAccount: string,
+): string {
   const cols = PRESET_COLUMNS[preset];
   const lines = [cols.map((c) => c.header).join(";")];
-  const sorted = [...entries].sort((a, b) => +a.date - +b.date || a.voucherNumber - b.voucherNumber);
+  const sorted = [...entries].sort(
+    (a, b) => +a.date - +b.date || a.voucherNumber - b.voucherNumber,
+  );
   for (const e of sorted) {
     lines.push(cols.map((c) => csvField(c.value(e, counterAccount), c.isText)).join(";"));
   }
   return BOM + lines.join(EOL) + EOL;
 }
 
-export function exportFilename(clientName: string, preset: ExportPreset, from: Date | null, to: Date | null): string {
+export function exportFilename(
+  clientName: string,
+  preset: ExportPreset,
+  from: Date | null,
+  to: Date | null,
+): string {
   const slug = clientName
     .toLowerCase()
     .replace(/æ/g, "ae")
@@ -92,6 +107,7 @@ export function exportFilename(clientName: string, preset: ExportPreset, from: D
     .replace(/å/g, "aa")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
-  const period = from || to ? `_${from ? formatDate(from) : "start"}_${to ? formatDate(to) : "slut"}` : "";
+  const period =
+    from || to ? `_${from ? formatDate(from) : "start"}_${to ? formatDate(to) : "slut"}` : "";
   return `kassekladde_${slug}_${preset}${period}.csv`;
 }

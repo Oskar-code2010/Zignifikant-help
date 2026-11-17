@@ -13,7 +13,9 @@ vi.mock("next-auth", async (importOriginal) => {
   return {
     ...original,
     getServerSession: vi.fn(async () =>
-      globalThis.__testUserId ? { user: { id: globalThis.__testUserId }, expires: "2999-01-01" } : null,
+      globalThis.__testUserId
+        ? { user: { id: globalThis.__testUserId }, expires: "2999-01-01" }
+        : null,
     ),
   };
 });

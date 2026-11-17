@@ -29,7 +29,8 @@ export default async function MissingPage({ params }: { params: Promise<{ client
         <CardHeader>
           <CardTitle>Udgifter uden bilag</CardTitle>
           <CardDescription>
-            {transactions.length} posteringer · i alt <span className="tabular">{formatDKK(totalOre)}</span>
+            {transactions.length} posteringer · i alt{" "}
+            <span className="tabular">{formatDKK(totalOre)}</span>
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -66,7 +67,10 @@ export default async function MissingPage({ params }: { params: Promise<{ client
           <CopyButton text={email} label="Kopiér e-mail" />
         </CardHeader>
         <CardContent>
-          <pre className="whitespace-pre-wrap rounded-md bg-muted p-4 font-sans text-sm" data-testid="missing-email">
+          <pre
+            className="whitespace-pre-wrap rounded-md bg-muted p-4 font-sans text-sm"
+            data-testid="missing-email"
+          >
             {email}
           </pre>
         </CardContent>

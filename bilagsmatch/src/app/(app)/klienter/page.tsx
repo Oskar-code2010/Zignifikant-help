@@ -44,7 +44,10 @@ export default async function ClientsPage() {
               {clients.map((c) => (
                 <TR key={c.id} className="hover:bg-muted/50">
                   <TD>
-                    <Link href={`/klienter/${c.id}/bilag`} className="font-medium text-primary hover:underline">
+                    <Link
+                      href={`/klienter/${c.id}/bilag`}
+                      className="font-medium text-primary hover:underline"
+                    >
                       {c.name}
                     </Link>
                   </TD>

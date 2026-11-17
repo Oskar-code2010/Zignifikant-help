@@ -6,7 +6,11 @@ import { fromIsoDate } from "@/lib/dates";
 import { normalizeCvr } from "@/lib/cvr";
 import type { Prisma } from "@prisma/client";
 
-export type ExtractionOutcome = { status: "EXTRACTED" | "FAILED"; retryable: boolean; error?: string };
+export type ExtractionOutcome = {
+  status: "EXTRACTED" | "FAILED";
+  retryable: boolean;
+  error?: string;
+};
 
 /**
  * Run extraction for one document and persist the result. Never throws for provider errors:
@@ -21,11 +25,18 @@ export async function extractDocument(
   const doc = await db.document.findUnique({ where: { id: documentId } });
   if (!doc) return { status: "FAILED", retryable: false, error: "Dokumentet findes ikke længere." };
 
-  await db.document.update({ where: { id: doc.id }, data: { status: "EXTRACTING", errorMessage: null } });
+  await db.document.update({
+    where: { id: doc.id },
+    data: { status: "EXTRACTING", errorMessage: null },
+  });
   const provider = opts.provider ?? getExtractionProvider();
   try {
     const bytes = await getStorage().get(doc.storagePath);
-    const r = await provider.extract({ bytes, mimeType: doc.mimeType, filename: doc.originalFilename });
+    const r = await provider.extract({
+      bytes,
+      mimeType: doc.mimeType,
+      filename: doc.originalFilename,
+    });
     const warnings = sanityCheck(r);
     const cvr = r.supplierCvr ? normalizeCvr(r.supplierCvr) : null;
     await db.document.update({
@@ -55,7 +66,9 @@ export async function extractDocument(
     const e =
       err instanceof ExtractionError
         ? err
-        : new ExtractionError("Dokumentet kunne ikke aflæses. Prøv igen, eller udfyld felterne manuelt.");
+        : new ExtractionError(
+            "Dokumentet kunne ikke aflæses. Prøv igen, eller udfyld felterne manuelt.",
+          );
     // While retries remain, keep the document in the queue state instead of FAILED.
     const willRetry = e.retryable && !opts.finalAttempt;
     await db.document.update({

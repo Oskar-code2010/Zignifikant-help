@@ -33,10 +33,18 @@ const TYPES: Record<string, string> = {
   EQUITY: "Egenkapital",
 };
 
-export function ChartEditor({ accounts, vatCodes }: { accounts: AccountRow[]; vatCodes: VatRow[] }) {
+export function ChartEditor({
+  accounts,
+  vatCodes,
+}: {
+  accounts: AccountRow[];
+  vatCodes: VatRow[];
+}) {
   const router = useRouter();
   const [edits, setEdits] = useState<Record<string, { name: string; defaultVatCode: string }>>({});
-  const [vatEdits, setVatEdits] = useState<Record<string, { name: string; description: string }>>({});
+  const [vatEdits, setVatEdits] = useState<Record<string, { name: string; description: string }>>(
+    {},
+  );
 
   async function saveAccount(a: AccountRow) {
     const e = edits[a.id];
@@ -105,10 +113,16 @@ export function ChartEditor({ accounts, vatCodes }: { accounts: AccountRow[]; va
       <Card>
         <CardHeader>
           <CardTitle>Kontoplan</CardTitle>
-          <CardDescription>Forenklet standardkontoplan for webshops. Ret navne og standard-momskoder, eller tilføj konti.</CardDescription>
+          <CardDescription>
+            Forenklet standardkontoplan for webshops. Ret navne og standard-momskoder, eller tilføj
+            konti.
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <form onSubmit={createAccount} className="grid grid-cols-1 items-end gap-3 md:grid-cols-5">
+          <form
+            onSubmit={createAccount}
+            className="grid grid-cols-1 items-end gap-3 md:grid-cols-5"
+          >
             <div className="flex flex-col gap-1">
               <Label htmlFor="acc-number">Nummer</Label>
               <Input id="acc-number" name="number" required inputMode="numeric" />
@@ -159,7 +173,9 @@ export function ChartEditor({ accounts, vatCodes }: { accounts: AccountRow[]; va
                       <Input
                         aria-label={`Navn på konto ${a.number}`}
                         value={e.name}
-                        onChange={(ev) => setEdits((s) => ({ ...s, [a.id]: { ...e, name: ev.target.value } }))}
+                        onChange={(ev) =>
+                          setEdits((s) => ({ ...s, [a.id]: { ...e, name: ev.target.value } }))
+                        }
                       />
                     </TD>
                     <TD className="text-muted-foreground">{TYPES[a.type] ?? a.type}</TD>
@@ -167,14 +183,24 @@ export function ChartEditor({ accounts, vatCodes }: { accounts: AccountRow[]; va
                       <Select
                         aria-label={`Standardmoms for konto ${a.number}`}
                         value={e.defaultVatCode}
-                        onChange={(ev) => setEdits((s) => ({ ...s, [a.id]: { ...e, defaultVatCode: ev.target.value } }))}
+                        onChange={(ev) =>
+                          setEdits((s) => ({
+                            ...s,
+                            [a.id]: { ...e, defaultVatCode: ev.target.value },
+                          }))
+                        }
                         className="w-28"
                       >
                         {vatOptions}
                       </Select>
                     </TD>
                     <TD className="text-right">
-                      <Button size="sm" variant="outline" disabled={!edits[a.id]} onClick={() => void saveAccount(a)}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={!edits[a.id]}
+                        onClick={() => void saveAccount(a)}
+                      >
                         <Save aria-hidden /> Gem
                       </Button>
                     </TD>
@@ -213,19 +239,31 @@ export function ChartEditor({ accounts, vatCodes }: { accounts: AccountRow[]; va
                       <Input
                         aria-label={`Navn på momskode ${v.code}`}
                         value={e.name}
-                        onChange={(ev) => setVatEdits((s) => ({ ...s, [v.id]: { ...e, name: ev.target.value } }))}
+                        onChange={(ev) =>
+                          setVatEdits((s) => ({ ...s, [v.id]: { ...e, name: ev.target.value } }))
+                        }
                       />
                     </TD>
                     <TD className="min-w-80">
                       <Input
                         aria-label={`Beskrivelse af momskode ${v.code}`}
                         value={e.description}
-                        onChange={(ev) => setVatEdits((s) => ({ ...s, [v.id]: { ...e, description: ev.target.value } }))}
+                        onChange={(ev) =>
+                          setVatEdits((s) => ({
+                            ...s,
+                            [v.id]: { ...e, description: ev.target.value },
+                          }))
+                        }
                       />
                     </TD>
                     <TD className="tabular text-right">{v.ratePercent} %</TD>
                     <TD className="text-right">
-                      <Button size="sm" variant="outline" disabled={!vatEdits[v.id]} onClick={() => void saveVat(v)}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={!vatEdits[v.id]}
+                        onClick={() => void saveVat(v)}
+                      >
                         <Save aria-hidden /> Gem
                       </Button>
                     </TD>

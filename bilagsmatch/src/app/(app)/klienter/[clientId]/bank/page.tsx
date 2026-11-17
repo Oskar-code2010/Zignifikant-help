@@ -29,23 +29,28 @@ export default async function BankPage({
   const ctx = await requirePageContext();
   const min = tryParseDanishAmount(one(sp.min) || null);
   const max = tryParseDanishAmount(one(sp.max) || null);
-  const [accounts, imports, transactions] = await pageData(Promise.all([
-    listBankAccounts(ctx, clientId),
-    listImports(ctx, clientId),
-    listTransactions(ctx, clientId, {
-      from: one(sp.from) || undefined,
-      to: one(sp.to) || undefined,
-      status: one(sp.status) || undefined,
-      q: one(sp.q) || undefined,
-      minOre: min === null ? undefined : Math.abs(min),
-      maxOre: max === null ? undefined : Math.abs(max),
-    }),
-  ]));
+  const [accounts, imports, transactions] = await pageData(
+    Promise.all([
+      listBankAccounts(ctx, clientId),
+      listImports(ctx, clientId),
+      listTransactions(ctx, clientId, {
+        from: one(sp.from) || undefined,
+        to: one(sp.to) || undefined,
+        status: one(sp.status) || undefined,
+        q: one(sp.q) || undefined,
+        minOre: min === null ? undefined : Math.abs(min),
+        maxOre: max === null ? undefined : Math.abs(max),
+      }),
+    ]),
+  );
   const hasFilter = ["from", "to", "status", "q", "min", "max"].some((k) => one(sp[k]) !== "");
 
   return (
     <div className="flex flex-col gap-5">
-      <BankImport clientId={clientId} bankAccounts={accounts.map((a) => ({ id: a.id, name: a.name }))} />
+      <BankImport
+        clientId={clientId}
+        bankAccounts={accounts.map((a) => ({ id: a.id, name: a.name }))}
+      />
 
       <Card>
         <CardHeader>
@@ -74,11 +79,23 @@ export default async function BankPage({
             </div>
             <div className="flex flex-col gap-1">
               <Label htmlFor="f-min">Beløb fra</Label>
-              <Input id="f-min" name="min" inputMode="decimal" placeholder="0,00" defaultValue={one(sp.min)} />
+              <Input
+                id="f-min"
+                name="min"
+                inputMode="decimal"
+                placeholder="0,00"
+                defaultValue={one(sp.min)}
+              />
             </div>
             <div className="flex flex-col gap-1">
               <Label htmlFor="f-max">Beløb til</Label>
-              <Input id="f-max" name="max" inputMode="decimal" placeholder="10.000,00" defaultValue={one(sp.max)} />
+              <Input
+                id="f-max"
+                name="max"
+                inputMode="decimal"
+                placeholder="10.000,00"
+                defaultValue={one(sp.max)}
+              />
             </div>
             <div className="flex flex-col gap-1">
               <Label htmlFor="f-q">Søg i tekst</Label>
@@ -97,8 +114,15 @@ export default async function BankPage({
           </form>
 
           {transactions.length === 0 ? (
-            <EmptyState title={hasFilter ? "Ingen posteringer matcher filteret" : "Ingen bankposteringer endnu"} icon={<Landmark className="h-8 w-8" />}>
-              {hasFilter ? "Prøv at ændre eller nulstille filteret." : "Importér et bankudtog som CSV ovenfor for at komme i gang."}
+            <EmptyState
+              title={
+                hasFilter ? "Ingen posteringer matcher filteret" : "Ingen bankposteringer endnu"
+              }
+              icon={<Landmark className="h-8 w-8" />}
+            >
+              {hasFilter
+                ? "Prøv at ændre eller nulstille filteret."
+                : "Importér et bankudtog som CSV ovenfor for at komme i gang."}
             </EmptyState>
           ) : (
             <Table data-testid="transactions-table">
@@ -118,7 +142,9 @@ export default async function BankPage({
                     <TD className="tabular whitespace-nowrap">{formatDate(t.bookingDate)}</TD>
                     <TD>{t.text}</TD>
                     <TD className="text-muted-foreground">{t.bankAccount.name}</TD>
-                    <TD className={`tabular whitespace-nowrap text-right ${t.amountOre < 0 ? "" : "text-success"}`}>
+                    <TD
+                      className={`tabular whitespace-nowrap text-right ${t.amountOre < 0 ? "" : "text-success"}`}
+                    >
                       {formatDKK(t.amountOre)}
                     </TD>
                     <TD className="tabular whitespace-nowrap text-right text-muted-foreground">
@@ -133,7 +159,9 @@ export default async function BankPage({
             </Table>
           )}
           {transactions.length === 1000 ? (
-            <p className="text-sm text-muted-foreground">Viser de første 1.000 posteringer. Brug filteret for at indsnævre.</p>
+            <p className="text-sm text-muted-foreground">
+              Viser de første 1.000 posteringer. Brug filteret for at indsnævre.
+            </p>
           ) : null}
         </CardContent>
       </Card>

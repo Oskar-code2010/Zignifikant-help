@@ -17,7 +17,12 @@ export default defineConfig({
     locale: "da-DK",
     timezoneId: "Europe/Copenhagen",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } } }],
+  projects: [
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
+    },
+  ],
   webServer: {
     command: "bash scripts/e2e-server.sh",
     url: `http://localhost:${PORT}/login`,

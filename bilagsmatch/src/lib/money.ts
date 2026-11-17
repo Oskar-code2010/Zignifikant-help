@@ -20,7 +20,10 @@ const CURRENCY_TOKENS = /\b(?:dkk|kr\.?|kroner|eur|usd|sek|nok|gbp)(?=\s|$|[^a-z
  * Decide which character is the decimal separator in a cleaned numeric string
  * that contains only digits, "." and ",".
  */
-function resolveDecimalSeparator(body: string, preferred: DecimalSeparator | "auto"): DecimalSeparator | null {
+function resolveDecimalSeparator(
+  body: string,
+  preferred: DecimalSeparator | "auto",
+): DecimalSeparator | null {
   const lastComma = body.lastIndexOf(",");
   const lastDot = body.lastIndexOf(".");
   if (lastComma === -1 && lastDot === -1) return null;

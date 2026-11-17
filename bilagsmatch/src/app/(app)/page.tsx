@@ -11,7 +11,15 @@ import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = { title: "Overblik" };
 
-function Stat({ label, value, icon: Icon }: { label: string; value: string | number; icon: typeof FileText }) {
+function Stat({
+  label,
+  value,
+  icon: Icon,
+}: {
+  label: string;
+  value: string | number;
+  icon: typeof FileText;
+}) {
   return (
     <Card>
       <CardContent className="flex items-center gap-4 pt-5">
@@ -30,8 +38,12 @@ function Stat({ label, value, icon: Icon }: { label: string; value: string | num
 export default async function DashboardPage() {
   const ctx = await requirePageContext();
   const rows = await dashboardOverview(ctx);
-  const sum = (k: "unmatchedDocuments" | "unmatchedTransactions" | "awaitingReview") => rows.reduce((s, r) => s + r[k], 0);
-  const lastExport = rows.map((r) => r.lastExportAt).filter((d): d is Date => d !== null).sort((a, b) => +b - +a)[0];
+  const sum = (k: "unmatchedDocuments" | "unmatchedTransactions" | "awaitingReview") =>
+    rows.reduce((s, r) => s + r[k], 0);
+  const lastExport = rows
+    .map((r) => r.lastExportAt)
+    .filter((d): d is Date => d !== null)
+    .sort((a, b) => +b - +a)[0];
 
   return (
     <div className="flex flex-col gap-6">
@@ -43,7 +55,11 @@ export default async function DashboardPage() {
         <Stat label="Bilag uden match" value={sum("unmatchedDocuments")} icon={FileText} />
         <Stat label="Bankposter uden bilag" value={sum("unmatchedTransactions")} icon={Landmark} />
         <Stat label="Forslag til gennemsyn" value={sum("awaitingReview")} icon={ListChecks} />
-        <Stat label="Seneste eksport" value={lastExport ? formatDate(lastExport) : "–"} icon={Download} />
+        <Stat
+          label="Seneste eksport"
+          value={lastExport ? formatDate(lastExport) : "–"}
+          icon={Download}
+        />
       </div>
       <Card>
         <CardHeader>
@@ -73,14 +89,21 @@ export default async function DashboardPage() {
                 {rows.map((r) => (
                   <TR key={r.id} className="hover:bg-muted/50">
                     <TD>
-                      <Link href={`/klienter/${r.id}/afstemning`} className="font-medium text-primary hover:underline">
+                      <Link
+                        href={`/klienter/${r.id}/afstemning`}
+                        className="font-medium text-primary hover:underline"
+                      >
                         {r.name}
                       </Link>
                     </TD>
                     <TD className="tabular text-right">{r.unmatchedDocuments}</TD>
                     <TD className="tabular text-right">{r.unmatchedTransactions}</TD>
                     <TD className="tabular text-right">{r.awaitingReview}</TD>
-                    <TD className={`tabular text-right ${r.failedDocuments > 0 ? "text-danger" : ""}`}>{r.failedDocuments}</TD>
+                    <TD
+                      className={`tabular text-right ${r.failedDocuments > 0 ? "text-danger" : ""}`}
+                    >
+                      {r.failedDocuments}
+                    </TD>
                     <TD className="tabular">{r.lastExportAt ? formatDate(r.lastExportAt) : "–"}</TD>
                   </TR>
                 ))}

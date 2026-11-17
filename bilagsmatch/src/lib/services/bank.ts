@@ -1,6 +1,12 @@
 import { z } from "zod";
 import type { SessionContext } from "@/lib/auth/session";
-import { analyzeCsv, dedupeHashes, ENCODING_LABELS, MAPPING_FIELDS, type ParseOptions } from "@/lib/bank-csv";
+import {
+  analyzeCsv,
+  dedupeHashes,
+  ENCODING_LABELS,
+  MAPPING_FIELDS,
+  type ParseOptions,
+} from "@/lib/bank-csv";
 import type { CsvEncoding } from "@/lib/bank-csv/decode";
 import { DATE_FORMATS, formatDate, fromIsoDate } from "@/lib/dates";
 import { badRequest, notFound } from "@/lib/api/errors";
@@ -35,9 +41,12 @@ export const ImportOptionsSchema = z
   })
   .refine((o) => o.mapping.bookingDate !== null, { message: "Vælg en kolonne for dato" })
   .refine((o) => o.mapping.text !== null, { message: "Vælg en kolonne for tekst" })
-  .refine((o) => o.mapping.amount !== null || o.mapping.debit !== null || o.mapping.credit !== null, {
-    message: "Vælg en beløbskolonne (eller Ud/Ind-kolonner)",
-  });
+  .refine(
+    (o) => o.mapping.amount !== null || o.mapping.debit !== null || o.mapping.credit !== null,
+    {
+      message: "Vælg en beløbskolonne (eller Ud/Ind-kolonner)",
+    },
+  );
 
 /** PDF, PNG, JPEG, ZIP/XLSX signatures or NUL bytes mean this is not a text CSV. */
 export function looksBinary(bytes: Uint8Array): boolean {
@@ -134,7 +143,9 @@ async function resolveBankAccount(
   const name = opts.newBankAccountName ?? "Bankkonto";
   const existing = await ctx.db.bankAccount.findFirst({ where: { clientId, name } });
   if (existing) return existing;
-  return ctx.db.bankAccount.create({ data: { organizationId: ctx.organizationId, clientId, name } });
+  return ctx.db.bankAccount.create({
+    data: { organizationId: ctx.organizationId, clientId, name },
+  });
 }
 
 /** Import transactions. Duplicates (same dedupe hash on the same bank account) are skipped. */
@@ -215,7 +226,9 @@ export async function importBankCsv(ctx: SessionContext, clientId: string, form:
 export const TransactionFilterSchema = z.object({
   from: z.string().optional(),
   to: z.string().optional(),
-  status: z.enum(["UNMATCHED", "SUGGESTED", "MATCHED", "IGNORED", "MISSING_RECEIPT", "ALL"]).optional(),
+  status: z
+    .enum(["UNMATCHED", "SUGGESTED", "MATCHED", "IGNORED", "MISSING_RECEIPT", "ALL"])
+    .optional(),
   minOre: z.coerce.number().int().optional(),
   maxOre: z.coerce.number().int().optional(),
   q: z.string().max(100).optional(),
@@ -229,17 +242,15 @@ export async function listTransactions(ctx: SessionContext, clientId: string, ra
   if (f.bankAccountId) where.bankAccountId = f.bankAccountId;
   const from = fromIsoDate(f.from);
   const to = fromIsoDate(f.to);
-  if (from || to) where.bookingDate = { ...(from ? { gte: from } : {}), ...(to ? { lte: to } : {}) };
+  if (from || to)
+    where.bookingDate = { ...(from ? { gte: from } : {}), ...(to ? { lte: to } : {}) };
   if (f.status && f.status !== "ALL") where.status = f.status as TransactionStatus;
   if (f.q) where.text = { contains: f.q };
   // Amount range filters on the absolute amount.
   if (f.minOre !== undefined || f.maxOre !== undefined) {
     const min = f.minOre ?? 0;
     const max = f.maxOre ?? 2_147_483_647;
-    where.OR = [
-      { amountOre: { gte: min, lte: max } },
-      { amountOre: { gte: -max, lte: -min } },
-    ];
+    where.OR = [{ amountOre: { gte: min, lte: max } }, { amountOre: { gte: -max, lte: -min } }];
   }
   const transactions = await ctx.db.bankTransaction.findMany({
     where,

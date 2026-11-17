@@ -13,25 +13,36 @@ import { AutoRefresh } from "@/components/common/auto-refresh";
 
 export const metadata: Metadata = { title: "Bilag" };
 
-export default async function DocumentPage({ params }: { params: Promise<{ clientId: string; documentId: string }> }) {
+export default async function DocumentPage({
+  params,
+}: {
+  params: Promise<{ clientId: string; documentId: string }>;
+}) {
   const { clientId, documentId } = await params;
   const ctx = await requirePageContext();
   const doc = await pageData(getDocument(ctx, documentId));
   if (doc.clientId !== clientId) notFound();
-  const warnings = Array.isArray(doc.extractionWarnings) ? (doc.extractionWarnings as string[]) : [];
+  const warnings = Array.isArray(doc.extractionWarnings)
+    ? (doc.extractionWarnings as string[])
+    : [];
   const busy = doc.status === "UPLOADED" || doc.status === "EXTRACTING";
 
   return (
     <div className="flex flex-col gap-4">
       {busy ? <AutoRefresh intervalMs={1500} /> : null}
       <div className="flex items-center gap-3">
-        <Link href={`/klienter/${clientId}/bilag`} className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
+        <Link
+          href={`/klienter/${clientId}/bilag`}
+          className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+        >
           <ArrowLeft className="h-4 w-4" aria-hidden /> Alle bilag
         </Link>
         <h2 className="truncate text-lg font-semibold">{doc.originalFilename}</h2>
         <DocumentStatusBadge status={doc.status} />
         {doc.extractionConfidence !== null ? (
-          <span className="text-sm text-muted-foreground">Sikkerhed {doc.extractionConfidence} %</span>
+          <span className="text-sm text-muted-foreground">
+            Sikkerhed {doc.extractionConfidence} %
+          </span>
         ) : null}
       </div>
       <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
@@ -49,7 +60,9 @@ export default async function DocumentPage({ params }: { params: Promise<{ clien
               </p>
             ) : null}
             {busy ? (
-              <p className="rounded-md bg-muted p-3 text-sm text-muted-foreground">Bilaget aflæses – felterne udfyldes om et øjeblik.</p>
+              <p className="rounded-md bg-muted p-3 text-sm text-muted-foreground">
+                Bilaget aflæses – felterne udfyldes om et øjeblik.
+              </p>
             ) : null}
             {warnings.length > 0 ? (
               <ul className="flex flex-col gap-1 rounded-md bg-warning-soft p-3 text-sm text-warning">

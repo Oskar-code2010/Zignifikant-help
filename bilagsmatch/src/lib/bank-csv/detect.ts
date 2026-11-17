@@ -15,9 +15,27 @@ export function normalizeHeader(h: string): string {
 
 /** Header synonyms in priority order (first match wins for each field). */
 const HEADER_SYNONYMS: Record<keyof ColumnMapping, string[]> = {
-  bookingDate: ["bogføringsdato", "bogfoeringsdato", "bogført", "dato", "posteringsdato", "transaktionsdato", "date", "booking date"],
+  bookingDate: [
+    "bogføringsdato",
+    "bogfoeringsdato",
+    "bogført",
+    "dato",
+    "posteringsdato",
+    "transaktionsdato",
+    "date",
+    "booking date",
+  ],
   valueDate: ["rentedato", "valørdato", "valør", "valuta dato", "value date"],
-  text: ["tekst", "posteringstekst", "transaktionstekst", "beskrivelse", "text", "description", "navn", "modtager"],
+  text: [
+    "tekst",
+    "posteringstekst",
+    "transaktionstekst",
+    "beskrivelse",
+    "text",
+    "description",
+    "navn",
+    "modtager",
+  ],
   amount: ["beløb", "beloeb", "beløb i dkk", "beløb dkk", "amount", "beløb (dkk)"],
   debit: ["ud", "udbetaling", "hævet", "hævning", "debet", "debit"],
   credit: ["ind", "indbetaling", "indsat", "kredit", "credit"],
@@ -42,7 +60,11 @@ export function emptyMapping(): ColumnMapping {
 
 /** Pick the delimiter that splits the first lines into the most consistent number (>1) of columns. */
 export function detectDelimiter(text: string): Delimiter {
-  const sample = text.split(/\r?\n/).filter((l) => l.trim() !== "").slice(0, 30).join("\n");
+  const sample = text
+    .split(/\r?\n/)
+    .filter((l) => l.trim() !== "")
+    .slice(0, 30)
+    .join("\n");
   let best: { d: Delimiter; score: number } = { d: ";", score: -1 };
   for (const d of DELIMITERS) {
     const rows = tokenize(sample, d).filter((r) => r.length > 1);
@@ -149,7 +171,8 @@ function guessFormatName(headers: string[], hasDebitCredit: boolean): string {
   if (h.includes("bogføringsdato") && h.includes("beskrivelse")) return "Ligner Nordea-eksport";
   if (h.includes("valør") || h.includes("valørdato")) return "Ligner Jyske Bank-eksport";
   if (hasDebitCredit) return "Ud/Ind-kolonner (fx Spar Nord)";
-  if (h.length > 0 && h.includes("valuta") && h.includes("beskrivelse")) return "Ligner Lunar-eksport";
+  if (h.length > 0 && h.includes("valuta") && h.includes("beskrivelse"))
+    return "Ligner Lunar-eksport";
   return h.length > 0 ? "Generisk CSV med overskrifter" : "CSV uden overskrifter";
 }
 
@@ -169,15 +192,19 @@ export function detectFormat(text: string, encoding: string): DetectionResult {
     mapping = mappingFromContent(rows);
   }
   const dataRows = rows.slice(headerRowIndex + 1).filter((r) => r.some((c) => c !== ""));
-  const dateSamples = mapping.bookingDate === null ? [] : dataRows.map((r) => r[mapping.bookingDate!] ?? "");
+  const dateSamples =
+    mapping.bookingDate === null ? [] : dataRows.map((r) => r[mapping.bookingDate!] ?? "");
   const dateFormat: DateFormat =
     detectDateFormat(dateSamples.filter(looksLikeDate)) ?? "dd-mm-yyyy";
   const amountIdx = [mapping.amount, mapping.debit, mapping.credit, mapping.balance].filter(
     (x): x is number => x !== null,
   );
-  const amountSamples = dataRows.flatMap((r) => amountIdx.map((i) => r[i] ?? "")).filter((s) => s !== "");
+  const amountSamples = dataRows
+    .flatMap((r) => amountIdx.map((i) => r[i] ?? ""))
+    .filter((s) => s !== "");
   const decimal = detectDecimal(amountSamples);
-  const hasDebitCredit = mapping.amount === null && (mapping.debit !== null || mapping.credit !== null);
+  const hasDebitCredit =
+    mapping.amount === null && (mapping.debit !== null || mapping.credit !== null);
 
   return {
     encoding,
@@ -185,9 +212,16 @@ export function detectFormat(text: string, encoding: string): DetectionResult {
     decimal,
     dateFormat,
     headerRowIndex,
-    headers: headers.length < columnCount
-      ? [...headers, ...Array.from({ length: columnCount - headers.length }, (_, i) => `Kolonne ${headers.length + i + 1}`)]
-      : headers,
+    headers:
+      headers.length < columnCount
+        ? [
+            ...headers,
+            ...Array.from(
+              { length: columnCount - headers.length },
+              (_, i) => `Kolonne ${headers.length + i + 1}`,
+            ),
+          ]
+        : headers,
     mapping,
     formatName: guessFormatName(headerRowIndex >= 0 ? headers : [], hasDebitCredit),
     columnCount,

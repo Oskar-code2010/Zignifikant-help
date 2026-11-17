@@ -1,11 +1,19 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { analyzeCsv, decodeCsvBytes, dedupeHashes, detectFormat, parseRows, tokenize } from "@/lib/bank-csv";
+import {
+  analyzeCsv,
+  decodeCsvBytes,
+  dedupeHashes,
+  detectFormat,
+  parseRows,
+  tokenize,
+} from "@/lib/bank-csv";
 import { detectDecimal, detectDelimiter, mappingFromHeaders } from "@/lib/bank-csv/detect";
 import { toIsoDate } from "@/lib/dates";
 
-const fixture = (name: string) => fs.readFileSync(path.join(__dirname, "..", "fixtures", "bank", name));
+const fixture = (name: string) =>
+  fs.readFileSync(path.join(__dirname, "..", "fixtures", "bank", name));
 
 function summarize(name: string) {
   const { detection, result } = analyzeCsv(fixture(name));
@@ -90,8 +98,20 @@ describe("fixtures", () => {
   it("file without header: infers columns from content", () => {
     const { detection, rows } = summarize("no-header.csv");
     expect(detection.headerRowIndex).toBe(-1);
-    expect(detection.headers).toEqual(["Kolonne 1", "Kolonne 2", "Kolonne 3", "Kolonne 4", "Kolonne 5"]);
-    expect(detection.mapping).toMatchObject({ bookingDate: 0, valueDate: 1, text: 2, amount: 3, balance: 4 });
+    expect(detection.headers).toEqual([
+      "Kolonne 1",
+      "Kolonne 2",
+      "Kolonne 3",
+      "Kolonne 4",
+      "Kolonne 5",
+    ]);
+    expect(detection.mapping).toMatchObject({
+      bookingDate: 0,
+      valueDate: 1,
+      text: 2,
+      amount: 3,
+      balance: 4,
+    });
     expect(rows[1]).toEqual(["2025-06-03", "Microsoft 365 abonnement", -105000, 883100]);
   });
 
@@ -113,7 +133,10 @@ describe("decoding", () => {
     expect(decodeCsvBytes(bytes)).toEqual({ text: "æøåÆØÅ", encoding: "windows-1252" });
   });
   it("strips the UTF-8 BOM", () => {
-    expect(decodeCsvBytes(Buffer.from("﻿Dato", "utf8"))).toEqual({ text: "Dato", encoding: "utf-8-bom" });
+    expect(decodeCsvBytes(Buffer.from("﻿Dato", "utf8"))).toEqual({
+      text: "Dato",
+      encoding: "utf-8-bom",
+    });
   });
   it("keeps plain UTF-8", () => {
     expect(decodeCsvBytes(Buffer.from("Beløb", "utf8")).encoding).toBe("utf-8");
@@ -135,9 +158,15 @@ describe("detection helpers", () => {
   });
 
   it("maps varying Danish header names", () => {
-    expect(mappingFromHeaders(["Bogført", "Rentedato", "Posteringstekst", "Beløb i DKK", "Bogført saldo"])).toMatchObject(
-      { bookingDate: 0, valueDate: 1, text: 2, amount: 3, balance: 4 },
-    );
+    expect(
+      mappingFromHeaders([
+        "Bogført",
+        "Rentedato",
+        "Posteringstekst",
+        "Beløb i DKK",
+        "Bogført saldo",
+      ]),
+    ).toMatchObject({ bookingDate: 0, valueDate: 1, text: 2, amount: 3, balance: 4 });
     expect(mappingFromHeaders(["Dato", "Beskrivelse", "Hævet", "Indsat"])).toMatchObject({
       bookingDate: 0,
       text: 1,
@@ -185,7 +214,12 @@ describe("dedupe hashes", () => {
     expect(h1).toEqual(h2);
     // Rows 3 and 4 are identical except for balance.
     expect(new Set(h1).size).toBe(4);
-    const same = { bookingDate: new Date(Date.UTC(2025, 0, 1)), amountOre: -100, text: "Kaffe", balanceOre: null };
+    const same = {
+      bookingDate: new Date(Date.UTC(2025, 0, 1)),
+      amountOre: -100,
+      text: "Kaffe",
+      balanceOre: null,
+    };
     const [x, y] = dedupeHashes([same, same]);
     expect(x).not.toBe(y);
   });
