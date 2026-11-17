@@ -4,7 +4,6 @@ import {
   analyzeCsv,
   dedupeHashes,
   ENCODING_LABELS,
-  MAPPING_FIELDS,
   type ParseOptions,
 } from "@/lib/bank-csv";
 import type { CsvEncoding } from "@/lib/bank-csv/decode";
@@ -275,4 +274,3 @@ export async function listImports(ctx: SessionContext, clientId: string) {
   });
 }
 
-export { MAPPING_FIELDS };
