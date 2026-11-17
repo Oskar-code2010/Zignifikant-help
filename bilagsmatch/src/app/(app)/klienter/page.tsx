@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Building2, Plus } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { requirePageContext } from "@/lib/auth/session";
 import { listClients } from "@/lib/services/clients";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
@@ -14,16 +13,11 @@ export const metadata: Metadata = { title: "Klienter" };
 export default async function ClientsPage() {
   const ctx = await requirePageContext();
   const clients = await listClients(ctx);
-  const createButton = (
-    <Button>
-      <Plus aria-hidden /> Opret klient
-    </Button>
-  );
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Klienter</h1>
-        <ClientFormDialog trigger={createButton} />
+        <ClientFormDialog />
       </div>
       {clients.length === 0 ? (
         <EmptyState title="Ingen klienter endnu" icon={<Building2 className="h-8 w-8" />}>

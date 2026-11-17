@@ -8,7 +8,7 @@ import { BankImport } from "@/components/bank/bank-import";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
 import { TransactionStatusBadge, TX_STATUS_LABELS } from "@/components/common/status-badge";
 
@@ -106,9 +106,9 @@ export default async function BankPage({
                 Filtrér
               </Button>
               {hasFilter ? (
-                <Button asChild variant="ghost">
-                  <a href={`/klienter/${clientId}/bank`}>Nulstil</a>
-                </Button>
+                <a href={`/klienter/${clientId}/bank`} className={buttonVariants({ variant: "ghost" })}>
+                  Nulstil
+                </a>
               ) : null}
             </div>
           </form>

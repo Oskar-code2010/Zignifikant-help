@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import {
@@ -24,13 +25,7 @@ interface ClientValues {
   bankLedgerAccount: string;
 }
 
-export function ClientFormDialog({
-  trigger,
-  initial,
-}: {
-  trigger: React.ReactNode;
-  initial?: ClientValues;
-}) {
+export function ClientFormDialog({ initial }: { initial?: ClientValues }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
@@ -77,7 +72,17 @@ export function ClientFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      <DialogTrigger asChild>
+        {editing ? (
+          <Button variant="outline" size="sm">
+            <Pencil aria-hidden /> Rediger
+          </Button>
+        ) : (
+          <Button>
+            <Plus aria-hidden /> Opret klient
+          </Button>
+        )}
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{editing ? "Rediger klient" : "Opret klient"}</DialogTitle>

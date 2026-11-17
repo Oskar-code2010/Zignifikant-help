@@ -7,7 +7,7 @@ import { formatDate } from "@/lib/dates";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 
 export const metadata: Metadata = { title: "Overblik" };
 
@@ -69,9 +69,9 @@ export default async function DashboardPage() {
           {rows.length === 0 ? (
             <EmptyState title="Ingen klienter endnu" icon={<Building2 className="h-8 w-8" />}>
               <p>Opret en klient for at komme i gang.</p>
-              <Button asChild className="mt-3">
-                <Link href="/klienter">Gå til klienter</Link>
-              </Button>
+              <Link href="/klienter" className={buttonVariants({ className: "mt-3" })}>
+                Gå til klienter
+              </Link>
             </EmptyState>
           ) : (
             <Table data-testid="dashboard-table">

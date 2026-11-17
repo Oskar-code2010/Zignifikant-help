@@ -1,7 +1,5 @@
-import { Pencil } from "lucide-react";
 import { pageData, requirePageContext } from "@/lib/auth/session";
 import { getClient } from "@/lib/services/clients";
-import { Button } from "@/components/ui/button";
 import { ClientFormDialog } from "@/components/clients/client-form-dialog";
 import { DeleteClientDialog } from "@/components/clients/delete-client-dialog";
 import { ClientTabs } from "@/components/clients/client-tabs";
@@ -34,11 +32,6 @@ export default async function ClientLayout({
               notes: client.notes,
               bankLedgerAccount: client.bankLedgerAccount,
             }}
-            trigger={
-              <Button variant="outline" size="sm">
-                <Pencil aria-hidden /> Rediger
-              </Button>
-            }
           />
           <DeleteClientDialog clientId={client.id} clientName={client.name} />
         </div>
