@@ -1,0 +1,364 @@
+// Bilagsmatch data model.
+// Rules:
+//  - Money is always integer øre (Int). Never Float/Decimal for money.
+//  - Every tenant-owned row carries organizationId so the scoped client
+//    (src/lib/db/scoped.ts) can enforce isolation on every query.
+//  - Only features that also exist in PostgreSQL are used.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  MEMBER
+}
+
+enum DocumentStatus {
+  UPLOADED
+  EXTRACTING
+  EXTRACTED
+  FAILED
+}
+
+enum TransactionStatus {
+  UNMATCHED
+  SUGGESTED
+  MATCHED
+  IGNORED
+  MISSING_RECEIPT
+}
+
+enum MatchStatus {
+  SUGGESTED
+  CONFIRMED
+  REJECTED
+}
+
+enum MatchSource {
+  AUTO
+  MANUAL
+}
+
+enum RuleMatchType {
+  SUPPLIER_CVR
+  SUPPLIER_NAME
+  BANK_TEXT_CONTAINS
+}
+
+enum RuleSource {
+  USER_CONFIRMATION
+  MANUAL
+}
+
+enum AccountType {
+  REVENUE
+  EXPENSE
+  ASSET
+  LIABILITY
+  EQUITY
+}
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  DONE
+  FAILED
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users              User[]
+  clients            Client[]
+  documents          Document[]
+  bankAccounts       BankAccount[]
+  bankImports        BankImport[]
+  transactions       BankTransaction[]
+  matches            Match[]
+  accounts           Account[]
+  vatCodes           VatCode[]
+  journalEntries     JournalEntry[]
+  rules              CategorizationRule[]
+  auditLogs          AuditLog[]
+  jobs               Job[]
+}
+
+model User {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  email          String       @unique
+  name           String
+  passwordHash   String
+  role           Role         @default(MEMBER)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  confirmedMatches Match[]    @relation("ConfirmedBy")
+  auditLogs        AuditLog[]
+
+  @@index([organizationId])
+}
+
+model Client {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  cvr            String
+  notes          String       @default("")
+  /// Ledger account used as counter account (modkonto) for bank postings in the export.
+  bankLedgerAccount String    @default("5810")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  documents      Document[]
+  bankAccounts   BankAccount[]
+  journalEntries JournalEntry[]
+
+  @@index([organizationId])
+}
+
+model Document {
+  id               String         @id @default(cuid())
+  organizationId   String
+  organization     Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  clientId         String
+  client           Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  originalFilename String
+  storagePath      String
+  mimeType         String
+  sizeBytes        Int
+  sha256           String
+  status           DocumentStatus @default(UPLOADED)
+  errorMessage     String?
+
+  supplierName         String?
+  supplierCvr          String?
+  invoiceNumber        String?
+  invoiceDate          DateTime?
+  dueDate              DateTime?
+  totalAmountOre       Int?
+  vatAmountOre         Int?
+  netAmountOre         Int?
+  currency             String?
+  description          String?
+  isCreditNote         Boolean   @default(false)
+  extractionConfidence Int?
+  extractionWarnings   Json?
+  rawExtractionJson    Json?
+  extractedBy          String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  matches        Match[]
+  journalEntries JournalEntry[]
+
+  @@unique([clientId, sha256])
+  @@index([organizationId])
+  @@index([clientId, status])
+}
+
+model BankAccount {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  clientId       String
+  client         Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  name           String
+  regNumber      String?
+  accountNumber  String?
+  createdAt      DateTime     @default(now())
+
+  imports      BankImport[]
+  transactions BankTransaction[]
+
+  @@index([organizationId])
+  @@index([clientId])
+}
+
+model BankImport {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  bankAccountId  String
+  bankAccount    BankAccount  @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+  filename       String
+  rowCount       Int
+  importedCount  Int
+  duplicateCount Int
+  failedCount    Int
+  detectedFormat String
+  importedAt     DateTime     @default(now())
+
+  transactions BankTransaction[]
+
+  @@index([organizationId])
+}
+
+model BankTransaction {
+  id             String            @id @default(cuid())
+  organizationId String
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  bankAccountId  String
+  bankAccount    BankAccount       @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+  bankImportId   String
+  bankImport     BankImport        @relation(fields: [bankImportId], references: [id], onDelete: Cascade)
+  bookingDate    DateTime
+  valueDate      DateTime?
+  text           String
+  amountOre      Int
+  balanceOre     Int?
+  currency       String            @default("DKK")
+  dedupeHash     String
+  status         TransactionStatus @default(UNMATCHED)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  matches        Match[]
+  journalEntries JournalEntry[]
+
+  @@unique([bankAccountId, dedupeHash])
+  @@index([organizationId])
+  @@index([bankAccountId, status])
+}
+
+model Match {
+  id               String          @id @default(cuid())
+  organizationId   String
+  organization     Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  documentId       String
+  document         Document        @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  transactionId    String
+  transaction      BankTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  score            Int
+  reasons          Json
+  status           MatchStatus     @default(SUGGESTED)
+  createdBy        MatchSource     @default(AUTO)
+  suggestedAccount String?
+  suggestedVatCode String?
+  suggestionSource String?
+  confirmedById    String?
+  confirmedBy      User?           @relation("ConfirmedBy", fields: [confirmedById], references: [id], onDelete: SetNull)
+  confirmedAt      DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  journalEntries JournalEntry[]
+
+  @@index([organizationId])
+  @@index([documentId])
+  @@index([transactionId])
+}
+
+model Account {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  number         String
+  name           String
+  type           AccountType
+  defaultVatCode String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId, number])
+}
+
+model VatCode {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  code           String
+  name           String
+  description    String
+  ratePercent    Int
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId, code])
+}
+
+model JournalEntry {
+  id             String           @id @default(cuid())
+  organizationId String
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  clientId       String
+  client         Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  matchId        String?
+  match          Match?           @relation(fields: [matchId], references: [id], onDelete: SetNull)
+  date           DateTime
+  text           String
+  accountNumber  String
+  vatCode        String
+  amountOre      Int
+  documentId     String?
+  document       Document?        @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  transactionId  String?
+  transaction    BankTransaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+  voucherNumber  Int
+  exported       Boolean          @default(false)
+  exportedAt     DateTime?
+  createdAt      DateTime         @default(now())
+
+  @@index([organizationId])
+  @@index([clientId, date])
+}
+
+model CategorizationRule {
+  id             String        @id @default(cuid())
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  matchType      RuleMatchType
+  pattern        String
+  accountNumber  String
+  vatCode        String
+  timesApplied   Int           @default(0)
+  createdFrom    RuleSource
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@unique([organizationId, matchType, pattern])
+}
+
+model AuditLog {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String?
+  user           User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action         String
+  entityType     String
+  entityId       String?
+  details        Json?
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId, createdAt])
+}
+
+model Job {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  type           String
+  payload        Json
+  status         JobStatus    @default(PENDING)
+  attempts       Int          @default(0)
+  lastError      String?
+  runAfter       DateTime     @default(now())
+  lockedAt       DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([status, runAfter])
+}
