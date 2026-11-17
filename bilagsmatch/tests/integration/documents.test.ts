@@ -52,9 +52,12 @@ describe("document upload and extraction", () => {
 
   it("detects duplicate uploads by content hash", async () => {
     actAs(a.user.id);
+    const before = await prisma.document.count({ where: { organizationId: a.org.id } });
     const res = await upload("renamed-copy.pdf", "gls-faktura-90881234.pdf");
-    expect(res.status).toBe(409);
-    expect(JSON.stringify(res.json)).toContain("allerede uploadet");
+    expect(res.status).toBe(200);
+    expect(res.json).toMatchObject({ duplicate: true });
+    expect(JSON.stringify(res.json)).toContain('allerede uploadet som \\"gls-faktura-90881234.pdf\\"');
+    expect(await prisma.document.count({ where: { organizationId: a.org.id } })).toBe(before);
   });
 
   it("validates file type by magic bytes, not extension", async () => {

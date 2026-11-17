@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { requireSessionContext } from "@/lib/auth/session";
+import { requirePageContext } from "@/lib/auth/session";
 import { listAccounts } from "@/lib/services/settings";
 import { ChartEditor } from "@/components/settings/chart-editor";
 
 export const metadata: Metadata = { title: "Kontoplan" };
 
 export default async function ChartPage() {
-  const ctx = await requireSessionContext();
+  const ctx = await requirePageContext();
   const { accounts, vatCodes } = await listAccounts(ctx);
   return (
     <div className="flex flex-col gap-5">

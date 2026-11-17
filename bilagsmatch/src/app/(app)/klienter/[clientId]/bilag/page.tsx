@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { requireSessionContext } from "@/lib/auth/session";
+import { pageData, requirePageContext } from "@/lib/auth/session";
 import { listDocuments } from "@/lib/services/documents";
 import { DocumentList } from "@/components/documents/document-list";
 
@@ -7,8 +7,8 @@ export const metadata: Metadata = { title: "Bilag" };
 
 export default async function DocumentsPage({ params }: { params: Promise<{ clientId: string }> }) {
   const { clientId } = await params;
-  const ctx = await requireSessionContext();
-  const docs = await listDocuments(ctx, clientId);
+  const ctx = await requirePageContext();
+  const docs = await pageData(listDocuments(ctx, clientId));
   return (
     <DocumentList
       clientId={clientId}

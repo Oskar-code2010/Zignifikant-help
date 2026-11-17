@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Building2, Plus } from "lucide-react";
-import { requireSessionContext } from "@/lib/auth/session";
+import { requirePageContext } from "@/lib/auth/session";
 import { listClients } from "@/lib/services/clients";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -12,7 +12,7 @@ import { ClientFormDialog } from "@/components/clients/client-form-dialog";
 export const metadata: Metadata = { title: "Klienter" };
 
 export default async function ClientsPage() {
-  const ctx = await requireSessionContext();
+  const ctx = await requirePageContext();
   const clients = await listClients(ctx);
   const createButton = (
     <Button>

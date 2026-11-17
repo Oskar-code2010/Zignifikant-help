@@ -26,6 +26,14 @@ export const GET = authed<P>(async (ctx, _req, { clientId }) => {
 });
 
 export const POST = authed<P>(async (ctx, req, { clientId }) => {
-  const doc = await uploadDocument(ctx, clientId, await req.formData());
-  return NextResponse.json({ document: { id: doc.id, status: doc.status } }, { status: 201 });
+  const { document, duplicate } = await uploadDocument(ctx, clientId, await req.formData());
+  if (duplicate) {
+    // Same content already uploaded for this client: idempotent, nothing new is stored.
+    return NextResponse.json({
+      duplicate: true,
+      document: { id: document.id, status: document.status },
+      message: `Filen er allerede uploadet som "${document.originalFilename}".`,
+    });
+  }
+  return NextResponse.json({ duplicate: false, document: { id: document.id, status: document.status } }, { status: 201 });
 });

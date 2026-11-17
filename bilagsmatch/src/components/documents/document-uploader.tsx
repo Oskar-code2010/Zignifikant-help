@@ -41,6 +41,10 @@ function uploadOne(url: string, file: File, onProgress: (p: number) => void): Pr
   });
 }
 
+function isDuplicate(body: unknown): body is { duplicate: true; message: string } {
+  return typeof body === "object" && body !== null && "duplicate" in body && body.duplicate === true && "message" in body && typeof body.message === "string";
+}
+
 function errorText(body: unknown, status: number): string {
   if (typeof body === "object" && body !== null && "error" in body && typeof body.error === "string") return body.error;
   return `Upload fejlede (${status}).`;
@@ -80,8 +84,8 @@ export function DocumentUploader({ clientId, onUploaded }: { clientId: string; o
             if (res.status === 201) {
               ok++;
               patch(item.key, { state: "done", progress: 100 });
-            } else if (res.status === 409) {
-              patch(item.key, { state: "duplicate", message: errorText(res.body, res.status) });
+            } else if (res.status === 200 && isDuplicate(res.body)) {
+              patch(item.key, { state: "duplicate", message: res.body.message });
             } else {
               patch(item.key, { state: "error", message: errorText(res.body, res.status) });
             }

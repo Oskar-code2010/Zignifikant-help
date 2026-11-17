@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { requireSessionContext } from "@/lib/auth/session";
+import { requirePageContext } from "@/lib/auth/session";
 import { getOrganizationOverview } from "@/lib/services/settings";
 import { anthropicModel, hasAnthropicKey } from "@/lib/env";
 import { formatDate } from "@/lib/dates";
@@ -11,7 +11,7 @@ import { CreateUserForm, OrganizationNameForm } from "@/components/settings/orga
 export const metadata: Metadata = { title: "Indstillinger" };
 
 export default async function SettingsPage() {
-  const ctx = await requireSessionContext();
+  const ctx = await requirePageContext();
   const { org, users } = await getOrganizationOverview(ctx);
   const real = hasAnthropicKey();
   const isOwner = ctx.role === "OWNER";

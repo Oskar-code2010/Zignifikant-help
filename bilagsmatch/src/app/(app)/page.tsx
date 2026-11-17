@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Building2, FileText, Landmark, ListChecks, Download } from "lucide-react";
-import { requireSessionContext } from "@/lib/auth/session";
+import { requirePageContext } from "@/lib/auth/session";
 import { dashboardOverview } from "@/lib/services/dashboard";
 import { formatDate } from "@/lib/dates";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,7 +28,7 @@ function Stat({ label, value, icon: Icon }: { label: string; value: string | num
 }
 
 export default async function DashboardPage() {
-  const ctx = await requireSessionContext();
+  const ctx = await requirePageContext();
   const rows = await dashboardOverview(ctx);
   const sum = (k: "unmatchedDocuments" | "unmatchedTransactions" | "awaitingReview") => rows.reduce((s, r) => s + r[k], 0);
   const lastExport = rows.map((r) => r.lastExportAt).filter((d): d is Date => d !== null).sort((a, b) => +b - +a)[0];

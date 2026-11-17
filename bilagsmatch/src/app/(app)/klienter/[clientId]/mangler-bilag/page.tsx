@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { CheckCircle2 } from "lucide-react";
-import { requireSessionContext } from "@/lib/auth/session";
+import { pageData, requirePageContext } from "@/lib/auth/session";
 import { missingReceipts } from "@/lib/services/export";
 import { formatDate } from "@/lib/dates";
 import { formatDKK } from "@/lib/money";
@@ -14,8 +14,8 @@ export const metadata: Metadata = { title: "Mangler bilag" };
 
 export default async function MissingPage({ params }: { params: Promise<{ clientId: string }> }) {
   const { clientId } = await params;
-  const ctx = await requireSessionContext();
-  const { transactions, totalOre, email } = await missingReceipts(ctx, clientId);
+  const ctx = await requirePageContext();
+  const { transactions, totalOre, email } = await pageData(missingReceipts(ctx, clientId));
   if (transactions.length === 0) {
     return (
       <EmptyState title="Ingen udgifter mangler bilag" icon={<CheckCircle2 className="h-8 w-8" />}>

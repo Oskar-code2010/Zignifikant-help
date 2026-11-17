@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Landmark } from "lucide-react";
-import { requireSessionContext } from "@/lib/auth/session";
+import { pageData, requirePageContext } from "@/lib/auth/session";
 import { listBankAccounts, listImports, listTransactions } from "@/lib/services/bank";
 import { formatDate } from "@/lib/dates";
 import { formatDKK, tryParseDanishAmount } from "@/lib/money";
@@ -26,10 +26,10 @@ export default async function BankPage({
 }) {
   const { clientId } = await params;
   const sp = await searchParams;
-  const ctx = await requireSessionContext();
+  const ctx = await requirePageContext();
   const min = tryParseDanishAmount(one(sp.min) || null);
   const max = tryParseDanishAmount(one(sp.max) || null);
-  const [accounts, imports, transactions] = await Promise.all([
+  const [accounts, imports, transactions] = await pageData(Promise.all([
     listBankAccounts(ctx, clientId),
     listImports(ctx, clientId),
     listTransactions(ctx, clientId, {
@@ -40,7 +40,7 @@ export default async function BankPage({
       minOre: min === null ? undefined : Math.abs(min),
       maxOre: max === null ? undefined : Math.abs(max),
     }),
-  ]);
+  ]));
   const hasFilter = ["from", "to", "status", "q", "min", "max"].some((k) => one(sp[k]) !== "");
 
   return (

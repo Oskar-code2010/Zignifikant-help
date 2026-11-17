@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AlertTriangle, ArrowLeft } from "lucide-react";
-import { requireSessionContext } from "@/lib/auth/session";
+import { pageData, requirePageContext } from "@/lib/auth/session";
 import { getDocument } from "@/lib/services/documents";
-import { HttpError } from "@/lib/api/errors";
 import { toIsoDate } from "@/lib/dates";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DocumentStatusBadge } from "@/components/common/status-badge";
@@ -16,14 +15,8 @@ export const metadata: Metadata = { title: "Bilag" };
 
 export default async function DocumentPage({ params }: { params: Promise<{ clientId: string; documentId: string }> }) {
   const { clientId, documentId } = await params;
-  const ctx = await requireSessionContext();
-  let doc;
-  try {
-    doc = await getDocument(ctx, documentId);
-  } catch (e) {
-    if (e instanceof HttpError && e.status === 404) notFound();
-    throw e;
-  }
+  const ctx = await requirePageContext();
+  const doc = await pageData(getDocument(ctx, documentId));
   if (doc.clientId !== clientId) notFound();
   const warnings = Array.isArray(doc.extractionWarnings) ? (doc.extractionWarnings as string[]) : [];
   const busy = doc.status === "UPLOADED" || doc.status === "EXTRACTING";

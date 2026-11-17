@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { requireSessionContext } from "@/lib/auth/session";
+import { requirePageContext } from "@/lib/auth/session";
 import { listRules, listAccounts } from "@/lib/services/settings";
 import { RulesTable } from "@/components/settings/rules-table";
 
 export const metadata: Metadata = { title: "Regler" };
 
 export default async function RulesPage() {
-  const ctx = await requireSessionContext();
+  const ctx = await requirePageContext();
   const [rules, { accounts, vatCodes }] = await Promise.all([listRules(ctx), listAccounts(ctx)]);
   return (
     <div className="flex flex-col gap-5">

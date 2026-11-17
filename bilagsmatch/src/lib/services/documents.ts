@@ -25,9 +25,7 @@ export async function uploadDocument(ctx: SessionContext, clientId: string, form
 
   const existing = await ctx.db.document.findFirst({ where: { clientId, sha256 } });
   if (existing) {
-    throw conflict(`Filen er allerede uploadet som "${existing.originalFilename}".`, {
-      duplicateOf: existing.id,
-    });
+    return { document: existing, duplicate: true as const };
   }
 
   const storage = getStorage();
@@ -55,7 +53,7 @@ export async function uploadDocument(ctx: SessionContext, clientId: string, form
       return d;
     });
     await audit(ctx.db, ctx, "document.upload", "Document", doc.id);
-    return doc;
+    return { document: doc, duplicate: false as const };
   } catch (err) {
     await storage.delete(storagePath);
     throw err;
