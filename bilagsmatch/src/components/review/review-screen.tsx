@@ -540,7 +540,8 @@ export function ReviewScreen({
               disabled={busy || !m}
               className="flex-1"
             >
-              <Check aria-hidden /> Bekræft <kbd className="bg-transparent text-white">Enter</kbd>
+              <Check aria-hidden /> Bekræft{" "}
+              <kbd className="border-white/40 bg-white/15 text-white">Enter</kbd>
             </Button>
             <Button variant="outline" onClick={() => void reject()} disabled={busy || !m}>
               <X aria-hidden /> Afvis <kbd>R</kbd>

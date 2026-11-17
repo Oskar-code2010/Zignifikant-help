@@ -17,7 +17,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset --force --skip-seed && tsx prisma/seed.ts",
     "postinstall": "prisma generate --no-hints",
-    "demo:check": "tsx scripts/demo-check.ts"
+    "demo:check": "tsx scripts/demo-check.ts",
+    "docs:screenshots": "playwright test --config playwright.screenshots.config.ts --trace off"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "1.5.0",
