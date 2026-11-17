@@ -1,4 +1,5 @@
 /** Dev helper: run matching on the seeded demo data and print the suggestions (read-only report). */
+import "../prisma/load-env";
 import { prisma } from "../src/lib/db/client";
 import { forOrg } from "../src/lib/db/scoped";
 import { matchAll } from "../src/lib/matching";
