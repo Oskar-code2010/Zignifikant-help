@@ -1,0 +1,19 @@
+BILAGSMATCH – SÅDAN STARTER DU APPEN
+====================================
+
+1. Installér Node.js (vælg "LTS") fra https://nodejs.org – kun første gang.
+2. Pak zip-filen ud til en mappe, fx på skrivebordet.
+3. Dobbeltklik:
+     Windows:  start-windows.bat
+     Mac:      start-mac.command
+        (Hvis Mac siger at filen ikke kan åbnes: højreklik -> "Åbn" -> "Åbn".)
+4. Første gang tager det 3-5 minutter (installation + demo-data). Derefter starter den på få sekunder.
+5. Browseren åbner selv http://localhost:3000
+     Log ind: demo@bilagsmatch.dk
+     Adgangskode: demo1234
+
+Prøv: Klienter -> Nordlys Webshop ApS -> "Kør afstemning" -> tryk Enter for at bekræfte.
+Demo-bilag (PDF) og bankudtog (CSV) til at trække ind selv ligger i mappen storage/demo-files.
+
+Stop appen ved at lukke det sorte vindue.
+Alle data bliver på din egen computer. Uden ANTHROPIC_API_KEY i .env kører appen i demo-tilstand.
